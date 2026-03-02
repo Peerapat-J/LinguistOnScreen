@@ -267,14 +267,27 @@ jobs:
         AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
       run: |
         pip install boto3
+        # CHANGELOG.md에서 릴리즈 노트 추출
+        RELEASE_NOTES=$(./scripts/extract_changelog.sh "${{ steps.version.outputs.VERSION }}" 2>/dev/null || echo "")
         python scripts/update_appcast.py \
           --version "${{ steps.version.outputs.VERSION }}" \
           --url "${{ secrets.STORAGE_BASE_URL }}/releases/${{ steps.version.outputs.VERSION }}/ScreenTranslate-${{ steps.version.outputs.VERSION }}.zip" \
           --size "${{ steps.fileinfo.outputs.FILE_SIZE }}" \
           --checksum "${{ steps.fileinfo.outputs.SHA256 }}" \
-          --signature "${{ steps.signature.outputs.ED_SIGNATURE }}"
+          --signature "${{ steps.signature.outputs.ED_SIGNATURE }}" \
+          ${RELEASE_NOTES:+--description "$RELEASE_NOTES"}
 
-    # 17. GitHub Release 생성
+    # 17. CHANGELOG에서 릴리즈 노트 추출
+    - name: Extract release notes
+      id: release_notes
+      run: |
+        NOTES=$(./scripts/extract_changelog.sh "${{ steps.version.outputs.VERSION }}" 2>/dev/null || echo "")
+        # GitHub Actions 멀티라인 출력
+        echo "NOTES<<EOF" >> $GITHUB_OUTPUT
+        echo "$NOTES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    # 18. GitHub Release 생성
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -284,15 +297,16 @@ jobs:
         body: |
           ## ScreenTranslate v${{ steps.version.outputs.VERSION }}
 
-          ### Download
-          - **[ScreenTranslate-${{ steps.version.outputs.VERSION }}.dmg](${{ secrets.STORAGE_BASE_URL }}/releases/${{ steps.version.outputs.VERSION }}/ScreenTranslate-${{ steps.version.outputs.VERSION }}.dmg)**
+          ${{ steps.release_notes.outputs.NOTES }}
 
           ---
-          Existing users will be updated automatically.
+          **Download:** [ScreenTranslate-${{ steps.version.outputs.VERSION }}.dmg](${{ secrets.STORAGE_BASE_URL }}/releases/${{ steps.version.outputs.VERSION }}/ScreenTranslate-${{ steps.version.outputs.VERSION }}.dmg)
+
+          Existing users will be updated automatically via Sparkle.
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # 18. 정리
+    # 19. 정리
     - name: Cleanup
       if: always()
       run: |

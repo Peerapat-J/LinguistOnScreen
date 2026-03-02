@@ -11,7 +11,8 @@ Oracle Cloud Object Storage에서 기존 appcast.xml을 다운로드하고,
     --url "https://.../.../ScreenTranslate-1.0.0.zip" \
     --size 12345678 \
     --checksum "sha256hash" \
-    --signature "edSignature"
+    --signature "edSignature" \
+    --description "Bug fixes and improvements"
 """
 
 import argparse
@@ -74,6 +75,7 @@ def add_item(
     size: int,
     checksum: str,
     signature: str,
+    description: str = "",
 ) -> str:
     """appcast.xml에 새 릴리즈 항목 추가."""
     root = ET.fromstring(xml_str)
@@ -107,6 +109,11 @@ def add_item(
     min_os = ET.SubElement(item, f"{{{SPARKLE_NS}}}minimumSystemVersion")
     min_os.text = "15.0"
 
+    # 릴리즈 노트 (영어, 선택사항)
+    if description:
+        desc = ET.SubElement(item, "description")
+        desc.text = description
+
     enclosure = ET.SubElement(item, "enclosure")
     enclosure.set("url", url)
     enclosure.set("length", str(size))
@@ -138,6 +145,7 @@ def main():
     parser.add_argument("--size", required=True, type=int)
     parser.add_argument("--checksum", required=True)
     parser.add_argument("--signature", required=True)
+    parser.add_argument("--description", default="", help="Release notes (English)")
     args = parser.parse_args()
 
     bucket = os.environ["STORAGE_BUCKET"]
@@ -159,6 +167,7 @@ def main():
         size=args.size,
         checksum=args.checksum,
         signature=args.signature,
+        description=args.description,
     )
 
     # 업로드

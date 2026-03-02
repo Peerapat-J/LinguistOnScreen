@@ -435,12 +435,24 @@ print_success "DMG 업로드 완료"
 
 print_header "Step 10: appcast.xml 업데이트"
 
+# CHANGELOG.md에서 릴리즈 노트 추출
+RELEASE_DESCRIPTION=$(./scripts/extract_changelog.sh "$VERSION" 2>/dev/null || echo "")
+
+if [ -n "$RELEASE_DESCRIPTION" ]; then
+    printf "${GREEN}📝 CHANGELOG.md에서 릴리즈 노트를 읽었습니다${NC}\n"
+    echo "$RELEASE_DESCRIPTION" | head -5
+    echo "..."
+else
+    printf "${YELLOW}📝 CHANGELOG.md에 v${VERSION} 항목이 없습니다. 릴리즈 노트 없이 진행합니다.${NC}\n"
+fi
+
 python3 scripts/update_appcast.py \
     --version "$VERSION" \
     --url "$ZIP_PUBLIC_URL" \
     --size "$ZIP_SIZE" \
     --checksum "$CHECKSUM" \
-    --signature "$ED_SIGNATURE"
+    --signature "$ED_SIGNATURE" \
+    ${RELEASE_DESCRIPTION:+--description "$RELEASE_DESCRIPTION"}
 
 print_success "appcast.xml 업데이트 완료"
 
