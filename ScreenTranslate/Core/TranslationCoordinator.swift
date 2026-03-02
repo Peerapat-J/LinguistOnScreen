@@ -39,6 +39,7 @@ final class TranslationCoordinator {
 
     private let ocrProvider: OCRProvider
     private let translationProvider: TranslationProvider
+    var sourceLanguage: Locale.Language?  // nil이면 자동 감지
     var targetLanguage: Locale.Language
 
     init(
@@ -56,22 +57,30 @@ final class TranslationCoordinator {
     /// C4: 각 단계 사이에서 state를 변경하여 UI가 중간 상태를 관찰할 수 있게 한다.
     func startProcessing(image: CGImage) {
         currentTask?.cancel()
+        // 동기적으로 state를 즉시 변경 — Task 내부에서 설정하면
+        // 폴링 루프가 .idle을 먼저 감지하여 즉시 break되는 레이스 컨디션 발생
+        state = .recognizing
         currentTask = Task {
-            state = .recognizing
 
             do {
                 let ocrResult = try await ocrProvider.recognize(image: image)
                 try Task.checkCancellation()  // ESC 체크 포인트
 
+                debugLog("OCR 결과: \"\(ocrResult.text)\" (신뢰도: \(ocrResult.confidence), 언어: \(ocrResult.detectedLanguage?.minimalIdentifier ?? "nil"))")
+                debugLog("타겟 언어: \(targetLanguage.minimalIdentifier)")
+
                 // C4: OCR 완료 후, 번역 호출 전에 state를 변경해야 UI가 "번역 중..." 표시
                 state = .translating
 
+                // OCR이 언어를 감지했으면 그 값 사용, 아니면 설정의 소스 언어 사용
+                let effectiveSource = ocrResult.detectedLanguage ?? sourceLanguage
                 let translated = try await translationProvider.translate(
                     text: ocrResult.text,
-                    from: ocrResult.detectedLanguage,
+                    from: effectiveSource,
                     to: targetLanguage
                 )
                 try Task.checkCancellation()  // ESC 체크 포인트
+                debugLog("번역 성공: \"\(translated)\"")
 
                 let result = TranslationResult(
                     text: translated,
@@ -85,6 +94,7 @@ final class TranslationCoordinator {
             } catch TranslationError.languageNotSupported {
                 state = .failed("이 언어 조합은 지원되지 않습니다.")
             } catch {
+                debugLog("에러: \(error)")
                 state = .failed(error.localizedDescription)
             }
         }
@@ -99,5 +109,24 @@ final class TranslationCoordinator {
 
     func reset() {
         cancel()
+    }
+}
+
+// MARK: - Debug Logging (임시)
+
+private let debugLogPath = "/tmp/screentranslate_debug.log"
+
+private func debugLog(_ message: String) {
+    let line = "[\(Date())] \(message)\n"
+    if let data = line.data(using: .utf8) {
+        if FileManager.default.fileExists(atPath: debugLogPath) {
+            if let handle = FileHandle(forWritingAtPath: debugLogPath) {
+                handle.seekToEndOfFile()
+                handle.write(data)
+                handle.closeFile()
+            }
+        } else {
+            FileManager.default.createFile(atPath: debugLogPath, contents: data)
+        }
     }
 }

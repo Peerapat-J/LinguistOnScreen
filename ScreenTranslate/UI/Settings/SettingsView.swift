@@ -7,6 +7,15 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Section("번역") {
+                Picker("원문 언어", selection: $settings.sourceLanguageCode) {
+                    Text("자동 감지").tag("auto")
+                    Divider()
+                    ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
+                        Text(lang.name).tag(lang.code)
+                    }
+                }
+                .pickerStyle(.menu)
+
                 Picker("번역 결과 언어", selection: $settings.targetLanguageCode) {
                     ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
                         Text(lang.name).tag(lang.code)

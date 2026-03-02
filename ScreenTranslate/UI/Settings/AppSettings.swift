@@ -8,6 +8,21 @@ import Observation
 final class AppSettings {
     static let shared = AppSettings()
 
+    // MARK: - Source Language
+
+    /// "auto"이면 자동 감지, 그 외에는 언어 코드
+    var sourceLanguageCode: String {
+        get {
+            access(keyPath: \.sourceLanguageCode)
+            return UserDefaults.standard.string(forKey: "com.screentranslate.sourceLanguageCode") ?? "auto"
+        }
+        set {
+            withMutation(keyPath: \.sourceLanguageCode) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.sourceLanguageCode")
+            }
+        }
+    }
+
     // MARK: - Target Language
 
     var targetLanguageCode: String {
@@ -51,6 +66,10 @@ final class AppSettings {
     }
 
     // MARK: - Computed Helpers
+
+    var sourceLanguage: Locale.Language? {
+        sourceLanguageCode == "auto" ? nil : Locale.Language(identifier: sourceLanguageCode)
+    }
 
     var targetLanguage: Locale.Language {
         Locale.Language(identifier: targetLanguageCode)

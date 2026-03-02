@@ -9,14 +9,16 @@ final class TranslationPopupWindow: NSPanel {
             backing: .buffered,
             defer: false
         )
+        isReleasedWhenClosed = false  // ARC 환경에서 close() 시 이중 해제 방지
         isFloatingPanel = true
         becomesKeyOnlyIfNeeded = true
         level = .floating
         backgroundColor = .clear
         isOpaque = false
         hasShadow = false
-        isMovableByWindowBackground = false  // 텍스트 드래그 선택과 충돌 방지
+        isMovableByWindowBackground = true  // 팝업 드래그 이동 허용
         hidesOnDeactivate = false
+        collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]  // 앱 전환 시에도 표시
     }
 
     /// H1: NSHostingView를 재사용하여 rootView만 교체한다.

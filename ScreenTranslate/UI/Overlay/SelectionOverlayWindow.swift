@@ -18,6 +18,7 @@ final class SelectionOverlayWindow: NSWindow {
             defer: false
         )
 
+        isReleasedWhenClosed = false  // ARC 환경에서 close() 시 이중 해제 방지
         level = NSWindow.Level(rawValue: NSWindow.Level.statusBar.rawValue + 1)
         backgroundColor = .clear
         isOpaque = false

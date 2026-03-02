@@ -17,6 +17,7 @@ enum PermissionGuard {
             backing: .buffered,
             defer: false
         )
+        panel.isReleasedWhenClosed = false  // ARC 환경에서 close() 시 이중 해제 방지
         panel.isFloatingPanel = true
         panel.becomesKeyOnlyIfNeeded = true
         panel.level = .floating

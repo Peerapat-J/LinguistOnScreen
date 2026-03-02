@@ -70,7 +70,8 @@ final class AppOrchestrator {
     private var clickMonitor: Any?
 
     private func processCapture(rect: CGRect) async {
-        // 설정에서 변경된 타겟 언어를 반영
+        // 설정에서 변경된 언어를 반영
+        coordinator.sourceLanguage = AppSettings.shared.sourceLanguage
         coordinator.targetLanguage = AppSettings.shared.targetLanguage
 
         // H1: 팝업 윈도우를 재사용하여 NSHostingView 재생성으로 인한 깜빡임 방지
@@ -85,8 +86,8 @@ final class AppOrchestrator {
         // 로딩 상태 표시
         popup.show(state: .recognizing, near: rect, on: currentScreen)
 
-        // H5: 팝업 외부 클릭 시 닫기
-        installClickOutsideMonitor(for: popup)
+        // H5: 진행 중에는 외부 클릭으로 닫히지 않도록,
+        // 완료/실패 후에만 클릭 모니터를 설치한다.
 
         do {
             let image = try await capturer.capture(rect: rect, screen: currentScreen)
@@ -106,6 +107,9 @@ final class AppOrchestrator {
                 try await Task.sleep(for: .milliseconds(50))
             }
 
+            // H5: 번역 완료/실패 후 외부 클릭 시 닫기 모니터 설치
+            installClickOutsideMonitor(for: popup)
+
         } catch is CancellationError {
             // 취소 시 조용히 종료
         } catch {
@@ -114,6 +118,7 @@ final class AppOrchestrator {
                 near: rect,
                 on: currentScreen
             )
+            installClickOutsideMonitor(for: popup)
         }
     }
 
