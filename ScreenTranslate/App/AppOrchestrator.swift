@@ -6,6 +6,7 @@ import Observation
 import Sparkle
 import SwiftData
 import SwiftUI
+import TelemetryDeck
 
 /// UI 생명주기를 관리하는 싱글턴.
 /// 오버레이/팝업 윈도우 표시/숨김, 권한 확인, 사용자 인터랙션 처리.
@@ -151,6 +152,7 @@ final class AppOrchestrator {
             // 히스토리 기록
             let finalState = coordinator.state
             if case .completed(let result) = finalState {
+                TelemetryDeck.signal("translationCompleted")
                 historyManager.recordSuccess(
                     sourceText: result.sourceText,
                     translatedText: result.translatedText,

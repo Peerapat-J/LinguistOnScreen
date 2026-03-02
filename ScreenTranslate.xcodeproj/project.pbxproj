@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		084CAE992F5600D100A3BB98 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 084CAE982F5600D100A3BB98 /* Sparkle */; };
+		0890668A2F564821000DEE6B /* TelemetryDeck in Frameworks */ = {isa = PBXBuildFile; productRef = 089066892F564821000DEE6B /* TelemetryDeck */; };
 		08A00C062F5560D200BA8C3C /* KeyboardShortcuts in Frameworks */ = {isa = PBXBuildFile; productRef = 0817A98D2F54A8C300AFA5A1 /* KeyboardShortcuts */; };
 /* End PBXBuildFile section */
 
@@ -72,6 +73,7 @@
 			files = (
 				08A00C062F5560D200BA8C3C /* KeyboardShortcuts in Frameworks */,
 				084CAE992F5600D100A3BB98 /* Sparkle in Frameworks */,
+				0890668A2F564821000DEE6B /* TelemetryDeck in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -134,6 +136,7 @@
 			packageProductDependencies = (
 				0817A98D2F54A8C300AFA5A1 /* KeyboardShortcuts */,
 				084CAE982F5600D100A3BB98 /* Sparkle */,
+				089066892F564821000DEE6B /* TelemetryDeck */,
 			);
 			productName = ScreenTranslate;
 			productReference = 0817A9622F54A8C200AFA5A1 /* ScreenTranslate.app */;
@@ -220,6 +223,7 @@
 			packageReferences = (
 				0817A98C2F54A8C300AFA5A1 /* XCRemoteSwiftPackageReference "KeyboardShortcuts" */,
 				084CAE972F5600D100A3BB98 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				089066882F564821000DEE6B /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 0817A9632F54A8C200AFA5A1 /* Products */;
@@ -621,6 +625,14 @@
 				minimumVersion = 2.9.0;
 			};
 		};
+		089066882F564821000DEE6B /* XCRemoteSwiftPackageReference "SwiftSDK" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/TelemetryDeck/SwiftSDK";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.11.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -633,6 +645,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 084CAE972F5600D100A3BB98 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		089066892F564821000DEE6B /* TelemetryDeck */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 089066882F564821000DEE6B /* XCRemoteSwiftPackageReference "SwiftSDK" */;
+			productName = TelemetryDeck;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
