@@ -146,7 +146,7 @@ final class AppOrchestrator {
             // 취소 시 조용히 종료
         } catch {
             popup.updateState(
-                .failed("캡처 오류: \(error.localizedDescription)"),
+                .failed(L10n.captureError(error.localizedDescription)),
                 near: rect,
                 on: currentScreen
             )
@@ -181,8 +181,13 @@ final class AppOrchestrator {
 
     private var historyWindow: NSWindow?
 
-    func showHistory() {
+    func showHistory(expandingRecord recordID: UUID? = nil) {
         if let existing = historyWindow, existing.isVisible {
+            // 기존 윈도우가 열려있으면 rootView를 교체하여 initialExpandedID 반영
+            if let recordID {
+                (existing.contentView as? NSHostingView<HistoryView>)?.rootView =
+                    HistoryView(historyManager: historyManager, initialExpandedID: recordID)
+            }
             existing.makeKeyAndOrderFront(nil)
             NSApp.activate()
             return
@@ -194,11 +199,11 @@ final class AppOrchestrator {
             backing: .buffered,
             defer: false
         )
-        window.title = "번역 히스토리"
+        window.title = L10n.translationHistory
         window.isReleasedWhenClosed = false
         window.center()
         window.contentView = NSHostingView(
-            rootView: HistoryView(historyManager: historyManager)
+            rootView: HistoryView(historyManager: historyManager, initialExpandedID: recordID)
         )
         window.makeKeyAndOrderFront(nil)
         NSApp.activate()

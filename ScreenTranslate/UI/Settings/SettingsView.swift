@@ -9,9 +9,17 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("번역") {
-                Picker("원문 언어", selection: $settings.sourceLanguageCode) {
-                    Text("자동 감지").tag("auto")
+            Section(L10n.generalSection) {
+                Picker(L10n.appLanguageLabel, selection: $settings.appLanguage) {
+                    Text("English").tag("en")
+                    Text("한국어").tag("ko")
+                }
+                .pickerStyle(.menu)
+            }
+
+            Section(L10n.translationSection) {
+                Picker(L10n.sourceLanguageLabel, selection: $settings.sourceLanguageCode) {
+                    Text(L10n.autoDetect).tag("auto")
                     Divider()
                     ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
                         Label {
@@ -36,7 +44,7 @@ struct SettingsView: View {
                     }
                 }
 
-                Picker("번역 결과 언어", selection: $settings.targetLanguageCode) {
+                Picker(L10n.targetLanguageLabel, selection: $settings.targetLanguageCode) {
                     ForEach(AppSettings.supportedLanguages, id: \.code) { lang in
                         Label {
                             Text(lang.name)
@@ -58,21 +66,21 @@ struct SettingsView: View {
                     }
                 }
 
-                Picker("OCR 엔진", selection: $settings.ocrProviderName) {
+                Picker(L10n.ocrEngine, selection: $settings.ocrProviderName) {
                     Text("Apple Vision").tag("Apple Vision")
                 }
                 .pickerStyle(.menu)
                 .disabled(true)
 
-                Picker("번역 엔진", selection: $settings.translationProviderName) {
+                Picker(L10n.translationEngine, selection: $settings.translationProviderName) {
                     Text("Apple Translation (로컬)").tag("Apple Translation")
                 }
                 .pickerStyle(.menu)
                 .disabled(true)
             }
 
-            Section("단축키") {
-                KeyboardShortcuts.Recorder("번역 단축키", name: .translate)
+            Section(L10n.shortcutSection) {
+                KeyboardShortcuts.Recorder(L10n.translationShortcut, name: .translate)
             }
         }
         .formStyle(.grouped)
@@ -84,13 +92,13 @@ struct SettingsView: View {
             await packManager.refreshStatuses(sourceCode: settings.sourceLanguageCode)
             await packManager.refreshSourceStatuses(targetCode: settings.targetLanguageCode)
         }
-        .alert("언어팩 미설치", isPresented: $showDownloadAlert) {
-            Button("확인") {}
+        .alert(L10n.languagePackNotInstalled, isPresented: $showDownloadAlert) {
+            Button(L10n.confirm) {}
                 .keyboardShortcut(.defaultAction)
         } message: {
             if let code = pendingDownloadCode,
                let name = AppSettings.supportedLanguages.first(where: { $0.code == code })?.name {
-                Text("\(name) 언어팩이 아직 설치되지 않았습니다.\n해당 언어로 처음 번역할 때 시스템에서 자동으로 다운로드됩니다.")
+                Text(L10n.languagePackMessage(name: name))
             }
         }
     }

@@ -8,6 +8,20 @@ import Observation
 final class AppSettings {
     static let shared = AppSettings()
 
+    // MARK: - App Language
+
+    var appLanguage: String {
+        get {
+            access(keyPath: \.appLanguage)
+            return UserDefaults.standard.string(forKey: "com.screentranslate.appLanguage") ?? "en"
+        }
+        set {
+            withMutation(keyPath: \.appLanguage) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.appLanguage")
+            }
+        }
+    }
+
     // MARK: - Source Language
 
     /// "auto"이면 자동 감지, 그 외에는 언어 코드

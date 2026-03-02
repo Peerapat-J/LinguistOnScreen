@@ -26,11 +26,11 @@ nonisolated enum TranslationError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .translationFailed(let reason):
-            return "번역 실패: \(reason)"
+            return L10n.translationFailed(reason)
         case .languageNotSupported:
-            return "이 언어 조합은 지원되지 않습니다."
+            return L10n.unsupportedLanguagePair
         case .apiKeyMissing:
-            return "API Key가 설정되지 않았습니다."
+            return "API Key is not configured."
         }
     }
 }

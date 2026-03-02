@@ -16,10 +16,10 @@ struct TranslationPopupView: View {
                 EmptyView()
 
             case .recognizing:
-                loadingView(message: "인식 중...")
+                loadingView(message: L10n.recognizing)
 
             case .translating:
-                loadingView(message: "번역 중...")
+                loadingView(message: L10n.translating)
 
             case .completed(let result):
                 completedView(result: result)
@@ -30,7 +30,7 @@ struct TranslationPopupView: View {
 
             HStack {
                 if case .completed = state {
-                    Toggle("원문 보기", isOn: $showingOriginal)
+                    Toggle(L10n.showOriginal, isOn: $showingOriginal)
                         .toggleStyle(.checkbox)
                         .onChange(of: showingOriginal) { _, newValue in
                             onToggleOriginal(newValue)
@@ -40,7 +40,7 @@ struct TranslationPopupView: View {
                 Spacer()
 
                 if case .completed(let result) = state {
-                    Button(didCopy ? "복사됨" : "복사") {
+                    Button(didCopy ? L10n.copied : L10n.copy) {
                         onCopy(result.translatedText)
                         didCopy = true
                         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
@@ -52,7 +52,7 @@ struct TranslationPopupView: View {
                     .keyboardShortcut("c", modifiers: .command)
                 }
 
-                Button("닫기") {
+                Button(L10n.close) {
                     onClose()
                 }
                 .buttonStyle(.bordered)
@@ -84,7 +84,7 @@ struct TranslationPopupView: View {
     private func completedView(result: TranslationCoordinator.TranslationResult) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             if result.lowConfidence {
-                Label("인식 정확도가 낮습니다", systemImage: "exclamationmark.triangle")
+                Label(L10n.lowConfidence, systemImage: "exclamationmark.triangle")
                     .font(.caption)
                     .foregroundStyle(.orange)
             }
@@ -105,7 +105,7 @@ struct TranslationPopupView: View {
 
                 VStack(alignment: .leading, spacing: 4) {
                     HStack {
-                        Text("원문")
+                        Text(L10n.originalText)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                         Spacer()

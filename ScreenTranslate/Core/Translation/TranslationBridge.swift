@@ -66,7 +66,7 @@ final class TranslationBridge {
     /// continuation을 원자적으로 소비하여 이중 resume을 방지한다.
     func handleSession(_ session: TranslationSession) {
         guard let text = pendingText else {
-            completionWithError("번역할 텍스트가 없습니다.")
+            completionWithError(L10n.noTextToTranslate)
             return
         }
 

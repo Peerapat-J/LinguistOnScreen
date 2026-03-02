@@ -8,7 +8,7 @@ struct HistoryDetailView: View {
             VStack(alignment: .leading, spacing: 16) {
                 // 번역문 섹션
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("번역문")
+                    Text(L10n.translatedText)
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -29,7 +29,7 @@ struct HistoryDetailView: View {
 
                 // 원문 섹션
                 VStack(alignment: .leading, spacing: 6) {
-                    Text("원문")
+                    Text(L10n.originalText)
                         .font(.caption)
                         .foregroundStyle(.secondary)
 
@@ -66,14 +66,14 @@ struct HistoryDetailView: View {
                 // 액션 버튼
                 HStack(spacing: 12) {
                     if let translated = record.translatedText {
-                        Button("번역문 복사") {
+                        Button(L10n.copyTranslation) {
                             copyToClipboard(translated)
                         }
                         .buttonStyle(.borderedProminent)
                     }
 
                     if !record.sourceText.isEmpty {
-                        Button("원문 복사") {
+                        Button(L10n.copyOriginal) {
                             copyToClipboard(record.sourceText)
                         }
                         .buttonStyle(.bordered)

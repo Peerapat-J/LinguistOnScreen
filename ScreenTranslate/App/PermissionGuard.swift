@@ -65,19 +65,19 @@ struct PermissionRequestView: View {
                 .font(.largeTitle)
                 .foregroundStyle(.secondary)
 
-            Text("화면 접근 권한이 필요합니다")
+            Text(L10n.permissionRequired)
                 .font(.headline)
 
-            Text("시스템 설정 > 개인 정보 보호 및 보안 > 화면 기록에서 ScreenTranslate를 허용해주세요.")
+            Text(L10n.permissionDescription)
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
             HStack {
-                Button("시스템 설정 열기") { onOpenSettings() }
+                Button(L10n.openSystemSettings) { onOpenSettings() }
                     .buttonStyle(.borderedProminent)
 
-                Button("닫기") { onClose() }
+                Button(L10n.close) { onClose() }
                     .buttonStyle(.bordered)
                     .keyboardShortcut(.cancelAction)
             }

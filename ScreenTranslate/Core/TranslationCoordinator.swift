@@ -97,9 +97,9 @@ final class TranslationCoordinator {
             } catch is CancellationError {
                 state = .idle  // 조용히 취소
             } catch OCRError.noTextFound {
-                state = .failed("선택한 영역에서 텍스트를 찾을 수 없습니다.")
+                state = .failed(L10n.noTextFound)
             } catch TranslationError.languageNotSupported {
-                state = .failed("이 언어 조합은 지원되지 않습니다.")
+                state = .failed(L10n.unsupportedLanguagePair)
             } catch {
                 logger.error("번역 파이프라인 에러: \(error)")
                 state = .failed(error.localizedDescription)

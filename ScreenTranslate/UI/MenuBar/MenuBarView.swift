@@ -3,7 +3,7 @@ import SwiftUI
 
 struct MenuBarView: View {
     var body: some View {
-        Button("번역하기") {
+        Button(L10n.translate) {
             AppOrchestrator.shared.startTranslation()
         }
         .globalKeyboardShortcut(.translate)
@@ -12,17 +12,14 @@ struct MenuBarView: View {
 
         // 최근 번역 서브메뉴
         let records = AppOrchestrator.shared.historyManager.recentRecords
-        Menu("최근 번역") {
+        Menu(L10n.recentTranslations) {
             if records.isEmpty {
-                Text("히스토리 없음")
+                Text(L10n.noHistory)
                     .foregroundStyle(.secondary)
             } else {
                 ForEach(records.prefix(5), id: \.id) { record in
                     Button {
-                        if let translated = record.translatedText {
-                            NSPasteboard.general.clearContents()
-                            NSPasteboard.general.setString(translated, forType: .string)
-                        }
+                        AppOrchestrator.shared.showHistory(expandingRecord: record.id)
                     } label: {
                         Label {
                             Text(record.translatedText ?? record.errorMessage ?? "")
@@ -36,7 +33,7 @@ struct MenuBarView: View {
 
                 Divider()
 
-                Button("모두 보기...") {
+                Button(L10n.showAll) {
                     AppOrchestrator.shared.showHistory()
                 }
                 .keyboardShortcut("H", modifiers: [.command, .shift])
@@ -46,12 +43,12 @@ struct MenuBarView: View {
         Divider()
 
         SettingsLink {
-            Text("설정...")
+            Text(L10n.settingsMenu)
         }
 
         Divider()
 
-        Button("ScreenTranslate 종료") {
+        Button(L10n.quit) {
             NSApplication.shared.terminate(nil)
         }
     }

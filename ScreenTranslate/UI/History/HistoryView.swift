@@ -2,6 +2,7 @@ import SwiftUI
 
 struct HistoryView: View {
     let historyManager: TranslationHistoryManager
+    var initialExpandedID: UUID?
 
     @State private var expandedRecordID: UUID?
     @State private var showingDeleteAllConfirm = false
@@ -10,12 +11,12 @@ struct HistoryView: View {
         VStack(spacing: 0) {
             // 툴바
             HStack {
-                Text("번역 히스토리")
+                Text(L10n.translationHistory)
                     .font(.headline)
 
                 Spacer()
 
-                Button("전체 삭제", role: .destructive) {
+                Button(L10n.deleteAll, role: .destructive) {
                     showingDeleteAllConfirm = true
                 }
                 .buttonStyle(.bordered)
@@ -47,15 +48,15 @@ struct HistoryView: View {
                     }
                     .contextMenu {
                         if let translated = record.translatedText {
-                            Button("번역문 복사") {
+                            Button(L10n.copyTranslation) {
                                 copyToClipboard(translated)
                             }
                         }
-                        Button("원문 복사") {
+                        Button(L10n.copyOriginal) {
                             copyToClipboard(record.sourceText)
                         }
                         Divider()
-                        Button("삭제", role: .destructive) {
+                        Button(L10n.delete, role: .destructive) {
                             historyManager.delete(record)
                         }
                     }
@@ -65,16 +66,19 @@ struct HistoryView: View {
         }
         .frame(minWidth: 500, idealWidth: 600, maxWidth: 800,
                minHeight: 400, idealHeight: 500, maxHeight: 700)
-        .confirmationDialog("전체 삭제", isPresented: $showingDeleteAllConfirm) {
-            Button("모든 히스토리 삭제", role: .destructive) {
+        .confirmationDialog(L10n.deleteAll, isPresented: $showingDeleteAllConfirm) {
+            Button(L10n.deleteAllHistory, role: .destructive) {
                 historyManager.deleteAll()
             }
-            Button("취소", role: .cancel) {}
+            Button(L10n.cancel, role: .cancel) {}
         } message: {
-            Text("모든 번역 히스토리가 삭제됩니다.\n이 작업은 되돌릴 수 없습니다.")
+            Text(L10n.deleteAllConfirmation)
         }
         .onAppear {
             historyManager.fetchRecent()
+            if let id = initialExpandedID {
+                expandedRecordID = id
+            }
         }
     }
 
@@ -83,7 +87,7 @@ struct HistoryView: View {
             Image(systemName: "clock")
                 .font(.largeTitle)
                 .foregroundStyle(.secondary)
-            Text("번역 히스토리가 없습니다")
+            Text(L10n.noHistoryMessage)
                 .font(.body)
                 .foregroundStyle(.secondary)
         }
@@ -178,7 +182,7 @@ struct HistoryRowView: View {
         // 번역문 전체
         if let translated = record.translatedText {
             VStack(alignment: .leading, spacing: 4) {
-                Text("번역문")
+                Text(L10n.translatedText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(translated)
@@ -198,7 +202,7 @@ struct HistoryRowView: View {
         // 원문 전체
         if !record.sourceText.isEmpty {
             VStack(alignment: .leading, spacing: 4) {
-                Text("원문")
+                Text(L10n.originalText)
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 Text(record.sourceText)
@@ -213,7 +217,7 @@ struct HistoryRowView: View {
         // 액션 버튼
         HStack(spacing: 12) {
             if let translated = record.translatedText {
-                Button("번역문 복사") {
+                Button(L10n.copyTranslation) {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(translated, forType: .string)
                 }
@@ -222,7 +226,7 @@ struct HistoryRowView: View {
             }
 
             if !record.sourceText.isEmpty {
-                Button("원문 복사") {
+                Button(L10n.copyOriginal) {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(record.sourceText, forType: .string)
                 }

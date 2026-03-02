@@ -24,9 +24,9 @@ nonisolated enum OCRError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .noTextFound:
-            return "선택한 영역에서 텍스트를 찾을 수 없습니다."
+            return L10n.noTextFound
         case .recognitionFailed(let reason):
-            return "텍스트 인식 실패: \(reason)"
+            return L10n.ocrFailed(reason)
         }
     }
 }

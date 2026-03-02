@@ -63,8 +63,8 @@ nonisolated enum CaptureError: LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .noDisplayFound: return "디스플레이를 찾을 수 없습니다."
-        case .cropFailed: return "이미지 크롭에 실패했습니다."
+        case .noDisplayFound: return L10n.noDisplayFound
+        case .cropFailed: return L10n.cropFailed
         }
     }
 }
