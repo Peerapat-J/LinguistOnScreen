@@ -10,7 +10,7 @@ import SwiftUI
 /// UI 생명주기를 관리하는 싱글턴.
 /// 오버레이/팝업 윈도우 표시/숨김, 권한 확인, 사용자 인터랙션 처리.
 /// 데이터 파이프라인(캡처->OCR->번역)은 TranslationCoordinator에 위임한다.
-@Observable
+@MainActor @Observable
 final class AppOrchestrator {
     static let shared = AppOrchestrator()
 
