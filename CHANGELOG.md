@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-03
+
 ### Added
-- Sparkle update settings (auto-check, auto-download toggles)
-- Update check button disabled state (canCheckForUpdates binding)
-- Release notes display in update dialog
+- Update check button disabled state in menu bar and About window (canCheckForUpdates binding)
+- Release notes display in Sparkle update dialog
+- Landing page website (EN/KO i18n, Docker deployment)
+- Website deployment script and documentation
 
 ## [0.0.1] - 2026-03-03
 
