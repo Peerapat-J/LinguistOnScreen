@@ -43,7 +43,7 @@ final class TranslationCoordinator {
     }
 
     private let ocrProvider: OCRProvider
-    private let translationProvider: TranslationProvider
+    private(set) var translationProvider: TranslationProvider
     var sourceLanguage: Locale.Language?  // nil이면 자동 감지
     var targetLanguage: Locale.Language
 
@@ -77,10 +77,18 @@ final class TranslationCoordinator {
                 // C4: OCR 완료 후, 번역 호출 전에 state를 변경해야 UI가 "번역 중..." 표시
                 state = .translating
 
+                // OCR 텍스트 전처리: 줄바꿈을 공백으로 치환하여 번역 품질 향상
+                let textForTranslation: String
+                if AppSettings.shared.ocrTextPreprocessing {
+                    textForTranslation = Self.preprocessOCRText(ocrResult.text)
+                } else {
+                    textForTranslation = ocrResult.text
+                }
+
                 // OCR이 언어를 감지했으면 그 값 사용, 아니면 설정의 소스 언어 사용
                 let effectiveSource = ocrResult.detectedLanguage ?? sourceLanguage
                 let translated = try await translationProvider.translate(
-                    text: ocrResult.text,
+                    text: textForTranslation,
                     from: effectiveSource,
                     to: targetLanguage
                 )
@@ -116,5 +124,56 @@ final class TranslationCoordinator {
 
     func reset() {
         cancel()
+    }
+
+    /// 런타임에 Provider를 교체한다 (설정 변경 시).
+    func updateProvider(_ provider: TranslationProvider) {
+        self.translationProvider = provider
+    }
+
+    /// OCR 텍스트 전처리: 줄바꿈 병합, CJK 처리, 하이픈 제거, 특수 공백 정리, Unicode 정규화.
+    static func preprocessOCRText(_ text: String) -> String {
+        // 0. Unicode 정규화: OCR이 인식하는 특수 유니코드 문자를 표준 ASCII로 변환
+        var result = text
+            .replacingOccurrences(of: "\u{201C}", with: "\"")  // " → "
+            .replacingOccurrences(of: "\u{201D}", with: "\"")  // " → "
+            .replacingOccurrences(of: "\u{2018}", with: "'")   // ' → '
+            .replacingOccurrences(of: "\u{2019}", with: "'")   // ' → '
+            .replacingOccurrences(of: "\u{2014}", with: "-")   // — (em dash) → -
+            .replacingOccurrences(of: "\u{2013}", with: "-")   // – (en dash) → -
+            .replacingOccurrences(of: "\u{2026}", with: "...")  // … → ...
+
+        // 1. 특수 공백(탭, non-breaking space 등)을 일반 공백으로 치환
+        result = result.replacingOccurrences(
+            of: "[\\t\\u{00A0}\\u{2003}\\u{2002}]",
+            with: " ",
+            options: .regularExpression
+        )
+        // 2. 하이픈 줄바꿈 제거 (영문 단어 분리: "transla-\ntion" → "translation")
+        result = result.replacingOccurrences(
+            of: "-\\s*\\n",
+            with: "",
+            options: .regularExpression
+        )
+        // 3. 이중 줄바꿈(단락 구분)을 임시 플레이스홀더로 보존
+        let placeholder = "\u{FFFC}"
+        result = result.replacingOccurrences(of: "\n\n", with: placeholder)
+        // 4. CJK 줄바꿈 처리: 양쪽이 CJK 문자이면 공백 없이 연결
+        result = result.replacingOccurrences(
+            of: "([\\p{Han}\\p{Hiragana}\\p{Katakana}\\p{Hangul}])\\n([\\p{Han}\\p{Hiragana}\\p{Katakana}\\p{Hangul}])",
+            with: "$1$2",
+            options: .regularExpression
+        )
+        // 5. 나머지 단일 줄바꿈을 공백으로 치환 (라틴 등)
+        result = result.replacingOccurrences(of: "\n", with: " ")
+        // 6. 플레이스홀더를 이중 줄바꿈으로 복원
+        result = result.replacingOccurrences(of: placeholder, with: "\n\n")
+        // 7. 다중 공백을 단일 공백으로 정리
+        result = result.replacingOccurrences(
+            of: " +",
+            with: " ",
+            options: .regularExpression
+        )
+        return result.trimmingCharacters(in: .whitespaces)
     }
 }

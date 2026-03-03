@@ -55,6 +55,27 @@ nonisolated enum L10n {
     static var downloading: String { s("Downloading...", ko: "다운로드 중...") }
     static var later: String { s("Later", ko: "나중에") }
 
+    // MARK: - API Keys
+
+    static var apiKeysSection: String { s("API Keys", ko: "API 키") }
+    static var enterApiKey: String { s("Enter API Key", ko: "API 키 입력") }
+    static var apiKeyRequired: String { s("API key required to use this engine.", ko: "이 엔진을 사용하려면 API 키가 필요합니다.") }
+    static var apiKeySaved: String { s("Saved", ko: "저장됨") }
+    static var clear: String { s("Clear", ko: "삭제") }
+    static var apiKeyInvalid: String { s("API key is invalid. Please check your key.", ko: "API 키가 유효하지 않습니다. 키를 확인해주세요.") }
+    static var quotaExceeded: String { s("API quota exceeded. Please check your plan.", ko: "API 사용량을 초과했습니다. 요금제를 확인해주세요.") }
+    static var regionLabel: String { s("Region", ko: "리전") }
+    static var regionPlaceholder: String { s("e.g. koreacentral", ko: "예: koreacentral") }
+
+    // MARK: - Advanced
+
+    static var autoCopyToClipboard: String { s("Auto-copy to Clipboard", ko: "자동 클립보드 복사") }
+    static var autoCopyToClipboardDesc: String { s("Automatically copy translated text to clipboard.", ko: "번역 완료 시 번역문을 자동으로 클립보드에 복사합니다.") }
+
+    static var advancedSection: String { s("Advanced", ko: "고급") }
+    static var ocrTextPreprocessing: String { s("Text Preprocessing", ko: "텍스트 전처리") }
+    static var ocrTextPreprocessingDesc: String { s("Merge line breaks from OCR into natural sentences before translation.", ko: "번역 전 OCR 줄바꿈을 자연스러운 문장으로 병합합니다.") }
+
     static func languagePackMessage(name: String) -> String {
         s("\(name) language pack is not installed.\nWould you like to download it now?",
           ko: "\(name) 언어팩이 설치되지 않았습니다.\n지금 다운로드할까요?")
@@ -85,6 +106,24 @@ nonisolated enum L10n {
           ko: "시스템 설정 > 개인 정보 보호 및 보안 > 화면 기록에서 ScreenTranslate를 허용해주세요.")
     }
     static var openSystemSettings: String { s("Open System Settings", ko: "시스템 설정 열기") }
+
+    // MARK: - Onboarding
+
+    static var onboardingWelcome: String { s("Welcome to ScreenTranslate", ko: "ScreenTranslate에 오신 것을 환영합니다") }
+    static var onboardingShortcutTitle: String { s("Set Your Shortcut", ko: "단축키를 설정하세요") }
+    static var onboardingShortcutDesc: String { s("Press the shortcut anywhere to translate text on screen.", ko: "어디서든 단축키를 눌러 화면의 텍스트를 번역하세요.") }
+    static var onboardingFlow1: String { s("Press shortcut", ko: "단축키 누르기") }
+    static var onboardingFlow2: String { s("Select area", ko: "영역 선택") }
+    static var onboardingFlow3: String { s("See translation", ko: "번역 확인") }
+    static var onboardingChangeHint: String { s("Use the default or click to change", ko: "기본값을 사용하거나 클릭하여 변경하세요") }
+    static var onboardingLangTitle: String { s("Download Language Pack", ko: "언어팩 다운로드") }
+    static var onboardingLangAutoSet: String { s("Your translation language has been set automatically.", ko: "번역 언어가 자동으로 설정되었습니다.") }
+    static var onboardingLangChoose: String { s("Which language do you want to translate into?", ko: "어떤 언어로 번역할까요?") }
+    static var onboardingLangInstalled: String { s("Language pack installed", ko: "언어팩 설치됨") }
+    static var onboardingLangNotInstalled: String { s("Language pack not installed", ko: "언어팩 미설치") }
+    static var onboardingNext: String { s("Next", ko: "다음") }
+    static var onboardingDone: String { s("Get Started", ko: "시작하기") }
+    static var onboardingSkip: String { s("Skip", ko: "건너뛰기") }
 
     // MARK: - Errors
 

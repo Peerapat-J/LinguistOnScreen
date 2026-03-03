@@ -42,7 +42,7 @@ final class AppSettings {
     var targetLanguageCode: String {
         get {
             access(keyPath: \.targetLanguageCode)
-            return UserDefaults.standard.string(forKey: "com.screentranslate.targetLanguageCode") ?? "ko"
+            return UserDefaults.standard.string(forKey: "com.screentranslate.targetLanguageCode") ?? AppSettings.defaultTargetLanguage
         }
         set {
             withMutation(keyPath: \.targetLanguageCode) {
@@ -79,6 +79,116 @@ final class AppSettings {
         }
     }
 
+    // MARK: - API Key Status (캐싱하여 매 렌더 시 Keychain 호출 방지)
+
+    private var _hasDeepLKey = KeychainHelper.load(key: TranslationProviderFactory.deepLKeychainKey) != nil
+    private var _hasGoogleKey = KeychainHelper.load(key: TranslationProviderFactory.googleKeychainKey) != nil
+    private var _hasAzureKey = KeychainHelper.load(key: TranslationProviderFactory.azureKeychainKey) != nil
+
+    var hasDeepLKey: Bool {
+        access(keyPath: \._hasDeepLKey)
+        return _hasDeepLKey
+    }
+
+    var hasGoogleKey: Bool {
+        access(keyPath: \._hasGoogleKey)
+        return _hasGoogleKey
+    }
+
+    var hasAzureKey: Bool {
+        access(keyPath: \._hasAzureKey)
+        return _hasAzureKey
+    }
+
+    // MARK: - API Key Operations
+
+    func saveDeepLKey(_ key: String) throws {
+        try KeychainHelper.save(key: TranslationProviderFactory.deepLKeychainKey, value: key)
+        withMutation(keyPath: \._hasDeepLKey) { _hasDeepLKey = true }
+    }
+
+    func deleteDeepLKey() {
+        try? KeychainHelper.delete(key: TranslationProviderFactory.deepLKeychainKey)
+        withMutation(keyPath: \._hasDeepLKey) { _hasDeepLKey = false }
+    }
+
+    func saveGoogleKey(_ key: String) throws {
+        try KeychainHelper.save(key: TranslationProviderFactory.googleKeychainKey, value: key)
+        withMutation(keyPath: \._hasGoogleKey) { _hasGoogleKey = true }
+    }
+
+    func deleteGoogleKey() {
+        try? KeychainHelper.delete(key: TranslationProviderFactory.googleKeychainKey)
+        withMutation(keyPath: \._hasGoogleKey) { _hasGoogleKey = false }
+    }
+
+    func saveAzureKey(_ key: String) throws {
+        try KeychainHelper.save(key: TranslationProviderFactory.azureKeychainKey, value: key)
+        withMutation(keyPath: \._hasAzureKey) { _hasAzureKey = true }
+    }
+
+    func deleteAzureKey() {
+        try? KeychainHelper.delete(key: TranslationProviderFactory.azureKeychainKey)
+        withMutation(keyPath: \._hasAzureKey) { _hasAzureKey = false }
+    }
+
+    // MARK: - Azure Region
+
+    var azureRegion: String? {
+        get {
+            access(keyPath: \.azureRegion)
+            let value = UserDefaults.standard.string(forKey: "com.screentranslate.azureRegion")
+            return (value?.isEmpty == true) ? nil : value
+        }
+        set {
+            withMutation(keyPath: \.azureRegion) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.azureRegion")
+            }
+        }
+    }
+
+    // MARK: - Auto Copy
+
+    var autoCopyToClipboard: Bool {
+        get {
+            access(keyPath: \.autoCopyToClipboard)
+            return UserDefaults.standard.object(forKey: "com.screentranslate.autoCopyToClipboard") as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.autoCopyToClipboard) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.autoCopyToClipboard")
+            }
+        }
+    }
+
+    // MARK: - Onboarding
+
+    var hasCompletedOnboarding: Bool {
+        get {
+            access(keyPath: \.hasCompletedOnboarding)
+            return UserDefaults.standard.bool(forKey: "com.screentranslate.hasCompletedOnboarding")
+        }
+        set {
+            withMutation(keyPath: \.hasCompletedOnboarding) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.hasCompletedOnboarding")
+            }
+        }
+    }
+
+    // MARK: - Advanced
+
+    var ocrTextPreprocessing: Bool {
+        get {
+            access(keyPath: \.ocrTextPreprocessing)
+            return UserDefaults.standard.object(forKey: "com.screentranslate.ocrTextPreprocessing") as? Bool ?? true
+        }
+        set {
+            withMutation(keyPath: \.ocrTextPreprocessing) {
+                UserDefaults.standard.set(newValue, forKey: "com.screentranslate.ocrTextPreprocessing")
+            }
+        }
+    }
+
     // MARK: - Computed Helpers
 
     var sourceLanguage: Locale.Language? {
@@ -87,6 +197,33 @@ final class AppSettings {
 
     var targetLanguage: Locale.Language {
         Locale.Language(identifier: targetLanguageCode)
+    }
+
+    // MARK: - System Language Detection
+
+    /// 시스템 언어를 기반으로 기본 타겟 언어를 결정한다.
+    /// 시스템 언어가 지원 목록에 있으면 해당 언어, 없으면 "ko" (가장 많은 사용자).
+    static let defaultTargetLanguage: String = {
+        let systemLang = Locale.current.language.languageCode?.identifier ?? "en"
+        // 시스템 언어가 영어면 타겟을 자동 결정할 수 없으므로 "ko" 기본값 유지
+        if systemLang == "en" { return "ko" }
+        // 시스템 언어가 지원 목록에 있으면 그 언어를 타겟으로
+        let supported = supportedLanguages.map(\.code)
+        if supported.contains(systemLang) { return systemLang }
+        // zh → zh-Hans 매핑
+        if systemLang == "zh" {
+            let script = Locale.current.language.script?.identifier ?? "Hans"
+            return script == "Hant" ? "zh-Hant" : "zh-Hans"
+        }
+        return "ko"
+    }()
+
+    /// 시스템 언어가 지원 목록에 있는지 (영어 제외). 온보딩에서 자동 설정 vs 선택 UI 분기에 사용.
+    static var systemLanguageIsSupported: Bool {
+        let systemLang = Locale.current.language.languageCode?.identifier ?? "en"
+        if systemLang == "en" { return false }
+        if systemLang == "zh" { return true }
+        return supportedLanguages.map(\.code).contains(systemLang)
     }
 
     // MARK: - Supported Languages

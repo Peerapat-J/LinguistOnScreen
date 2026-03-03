@@ -11,6 +11,12 @@ struct SettingsView: View {
     @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
     @State private var isDownloading = false
 
+    // API Key 입력 상태
+    @State private var deepLKeyInput = ""
+    @State private var googleKeyInput = ""
+    @State private var azureKeyInput = ""
+    @State private var azureRegionInput = ""
+
     var body: some View {
         Form {
             Section(L10n.generalSection) {
@@ -34,6 +40,15 @@ struct SettingsView: View {
                             }
                         }
                     }
+
+                Toggle(isOn: $settings.autoCopyToClipboard) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.autoCopyToClipboard)
+                        Text(L10n.autoCopyToClipboardDesc)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
 
             Section(L10n.translationSection) {
@@ -115,13 +130,139 @@ struct SettingsView: View {
 
                 Picker(L10n.translationEngine, selection: $settings.translationProviderName) {
                     Text(L10n.translationEngineName).tag("Apple Translation")
+                    Text(settings.hasDeepLKey ? "DeepL" : "DeepL (\(L10n.apiKeysSection))").tag("DeepL")
+                    Text(settings.hasGoogleKey ? "Google Cloud" : "Google Cloud (\(L10n.apiKeysSection))").tag("Google Cloud")
+                    Text(settings.hasAzureKey ? "Microsoft Azure" : "Microsoft Azure (\(L10n.apiKeysSection))").tag("Microsoft Azure")
                 }
                 .pickerStyle(.menu)
-                .disabled(true)
+                .onChange(of: settings.translationProviderName) { _, _ in
+                    AppOrchestrator.shared.updateTranslationProvider()
+                }
+
+                // DeepL 선택 시 API 키 입력 인라인 표시
+                if settings.translationProviderName == "DeepL" {
+                    if settings.hasDeepLKey {
+                        HStack {
+                            Label(L10n.apiKeySaved, systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.callout)
+                            Spacer()
+                            Button(L10n.clear) {
+                                settings.deleteDeepLKey()
+                                deepLKeyInput = ""
+                                settings.translationProviderName = "Apple Translation"
+                                AppOrchestrator.shared.updateTranslationProvider()
+                            }
+                            .controlSize(.small)
+                        }
+                    } else {
+                        HStack {
+                            SecureField(L10n.enterApiKey, text: $deepLKeyInput)
+                                .textFieldStyle(.roundedBorder)
+                            Button(L10n.confirm) {
+                                guard !deepLKeyInput.isEmpty else { return }
+                                try? settings.saveDeepLKey(deepLKeyInput)
+                                deepLKeyInput = ""
+                                AppOrchestrator.shared.updateTranslationProvider()
+                            }
+                            .controlSize(.small)
+                            .disabled(deepLKeyInput.isEmpty)
+                        }
+                    }
+                }
+
+                // Google Cloud 선택 시 API 키 입력 인라인 표시
+                if settings.translationProviderName == "Google Cloud" {
+                    if settings.hasGoogleKey {
+                        HStack {
+                            Label(L10n.apiKeySaved, systemImage: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                                .font(.callout)
+                            Spacer()
+                            Button(L10n.clear) {
+                                settings.deleteGoogleKey()
+                                googleKeyInput = ""
+                                settings.translationProviderName = "Apple Translation"
+                                AppOrchestrator.shared.updateTranslationProvider()
+                            }
+                            .controlSize(.small)
+                        }
+                    } else {
+                        HStack {
+                            SecureField(L10n.enterApiKey, text: $googleKeyInput)
+                                .textFieldStyle(.roundedBorder)
+                            Button(L10n.confirm) {
+                                guard !googleKeyInput.isEmpty else { return }
+                                try? settings.saveGoogleKey(googleKeyInput)
+                                googleKeyInput = ""
+                                AppOrchestrator.shared.updateTranslationProvider()
+                            }
+                            .controlSize(.small)
+                            .disabled(googleKeyInput.isEmpty)
+                        }
+                    }
+                }
+
+                // Microsoft Azure 선택 시 API 키 + 리전 입력 인라인 표시
+                if settings.translationProviderName == "Microsoft Azure" {
+                    if settings.hasAzureKey {
+                        HStack {
+                            Label(
+                                settings.azureRegion.map { "\(L10n.apiKeySaved) (\($0))" } ?? L10n.apiKeySaved,
+                                systemImage: "checkmark.circle.fill"
+                            )
+                            .foregroundStyle(.green)
+                            .font(.callout)
+                            Spacer()
+                            Button(L10n.clear) {
+                                settings.deleteAzureKey()
+                                settings.azureRegion = nil
+                                azureKeyInput = ""
+                                azureRegionInput = ""
+                                settings.translationProviderName = "Apple Translation"
+                                AppOrchestrator.shared.updateTranslationProvider()
+                            }
+                            .controlSize(.small)
+                        }
+                    } else {
+                        VStack(spacing: 6) {
+                            HStack {
+                                SecureField(L10n.enterApiKey, text: $azureKeyInput)
+                                    .textFieldStyle(.roundedBorder)
+                            }
+                            HStack {
+                                TextField(L10n.regionPlaceholder, text: $azureRegionInput)
+                                    .textFieldStyle(.roundedBorder)
+                                Button(L10n.confirm) {
+                                    guard !azureKeyInput.isEmpty else { return }
+                                    try? settings.saveAzureKey(azureKeyInput)
+                                    let region = azureRegionInput.trimmingCharacters(in: .whitespaces)
+                                    settings.azureRegion = region.isEmpty ? nil : region
+                                    azureKeyInput = ""
+                                    azureRegionInput = ""
+                                    AppOrchestrator.shared.updateTranslationProvider()
+                                }
+                                .controlSize(.small)
+                                .disabled(azureKeyInput.isEmpty)
+                            }
+                        }
+                    }
+                }
             }
 
             Section(L10n.shortcutSection) {
                 KeyboardShortcuts.Recorder(L10n.translationShortcut, name: .translate)
+            }
+
+            Section(L10n.advancedSection) {
+                Toggle(isOn: $settings.ocrTextPreprocessing) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.ocrTextPreprocessing)
+                        Text(L10n.ocrTextPreprocessingDesc)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
             }
         }
         .formStyle(.grouped)
@@ -129,6 +270,19 @@ struct SettingsView: View {
         .fixedSize(horizontal: false, vertical: true)
         .task {
             await packManager.refreshAllStatuses()
+            // 외부에서 Keychain이 초기화된 경우 선택값 유효성 검증
+            if settings.translationProviderName == "DeepL" && !settings.hasDeepLKey {
+                settings.translationProviderName = "Apple Translation"
+                AppOrchestrator.shared.updateTranslationProvider()
+            }
+            if settings.translationProviderName == "Google Cloud" && !settings.hasGoogleKey {
+                settings.translationProviderName = "Apple Translation"
+                AppOrchestrator.shared.updateTranslationProvider()
+            }
+            if settings.translationProviderName == "Microsoft Azure" && !settings.hasAzureKey {
+                settings.translationProviderName = "Apple Translation"
+                AppOrchestrator.shared.updateTranslationProvider()
+            }
         }
         .alert(L10n.languagePackNotInstalled, isPresented: $showDownloadAlert) {
             Button(L10n.download) {

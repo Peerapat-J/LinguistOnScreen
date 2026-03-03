@@ -58,9 +58,15 @@ final class AppOrchestrator {
     /// 생성되어 @Observable 상태 추적이 불가능하고, 진행 중인 Task가 소실된다.
     let coordinator = TranslationCoordinator(
         ocrProvider: VisionOCRProvider(),
-        translationProvider: AppleTranslationProvider(),
+        translationProvider: TranslationProviderFactory.make(name: AppSettings.shared.translationProviderName),
         targetLanguage: AppSettings.shared.targetLanguage
     )
+
+    /// 설정에서 번역 엔진이 변경되면 Provider를 교체한다.
+    func updateTranslationProvider() {
+        let provider = TranslationProviderFactory.make(name: AppSettings.shared.translationProviderName)
+        coordinator.updateProvider(provider)
+    }
 
     func setup() {
         KeyboardShortcuts.onKeyUp(for: .translate) { [weak self] in
@@ -152,13 +158,17 @@ final class AppOrchestrator {
             // 히스토리 기록
             let finalState = coordinator.state
             if case .completed(let result) = finalState {
-                TelemetryDeck.signal("translationCompleted")
+                TelemetryDeck.signal("translationCompleted", parameters: ["engine": coordinator.translationProvider.name])
                 historyManager.recordSuccess(
                     sourceText: result.sourceText,
                     translatedText: result.translatedText,
                     sourceLanguageCode: result.sourceLanguage?.minimalIdentifier,
                     targetLanguageCode: coordinator.targetLanguage.minimalIdentifier
                 )
+                if AppSettings.shared.autoCopyToClipboard {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(result.translatedText, forType: .string)
+                }
             } else if case .failed(let message) = finalState {
                 historyManager.recordFailure(
                     sourceText: nil,
@@ -205,6 +215,55 @@ final class AppOrchestrator {
         }
     }
 
+    // MARK: - 온보딩 윈도우
+
+    private var onboardingWindow: NSWindow?
+
+    func showOnboardingIfNeeded() {
+        // 중복 윈도우 방지
+        if let existing = onboardingWindow, existing.isVisible { return }
+
+        // 기존 사용자 판별: UserDefaults에 앱 설정 키가 하나라도 있으면 기존 사용자로 간주.
+        // (이 키들은 computed property + ?? 기본값이라 사용자가 명시적으로 변경해야만 저장됨)
+        let existingUserKeys = [
+            "com.screentranslate.targetLanguageCode",
+            "com.screentranslate.sourceLanguageCode",
+            "com.screentranslate.translationProviderName",
+            "com.screentranslate.ocrTextPreprocessing",
+        ]
+        let isExistingUser = existingUserKeys.contains { UserDefaults.standard.object(forKey: $0) != nil }
+        if isExistingUser {
+            AppSettings.shared.hasCompletedOnboarding = true
+            return
+        }
+
+        guard !AppSettings.shared.hasCompletedOnboarding else { return }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 480, height: 360),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "ScreenTranslate"
+        window.isReleasedWhenClosed = false
+        window.center()
+
+        // onComplete: finishOnboarding()이 hasCompletedOnboarding 설정을 담당하고,
+        // X 버튼은 OnboardingWindowDelegate가 처리하므로 여기서는 윈도우만 닫는다.
+        let onboardingView = OnboardingView {
+            window.close()
+        }
+        window.contentView = NSHostingView(rootView: onboardingView)
+
+        // X 버튼으로 닫을 때도 완료 처리
+        window.delegate = OnboardingWindowDelegate.shared
+
+        window.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        self.onboardingWindow = window
+    }
+
     // MARK: - 설정 윈도우
 
     private var settingsWindow: NSWindow?
@@ -212,7 +271,7 @@ final class AppOrchestrator {
     func showSettings() {
         if let existing = settingsWindow, existing.isVisible {
             existing.makeKeyAndOrderFront(nil)
-            NSApp.activate()
+            NSApp.activate(ignoringOtherApps: true)
             return
         }
 
@@ -227,7 +286,7 @@ final class AppOrchestrator {
         window.center()
         window.contentView = NSHostingView(rootView: SettingsView())
         window.makeKeyAndOrderFront(nil)
-        NSApp.activate()
+        NSApp.activate(ignoringOtherApps: true)
         self.settingsWindow = window
     }
 
@@ -238,7 +297,7 @@ final class AppOrchestrator {
     func showAbout() {
         if let existing = aboutWindow, existing.isVisible {
             existing.makeKeyAndOrderFront(nil)
-            NSApp.activate()
+            NSApp.activate(ignoringOtherApps: true)
             return
         }
 
@@ -253,7 +312,7 @@ final class AppOrchestrator {
         window.center()
         window.contentView = NSHostingView(rootView: AboutView())
         window.makeKeyAndOrderFront(nil)
-        NSApp.activate()
+        NSApp.activate(ignoringOtherApps: true)
         self.aboutWindow = window
     }
 
@@ -269,7 +328,7 @@ final class AppOrchestrator {
                     HistoryView(historyManager: historyManager, initialExpandedID: recordID)
             }
             existing.makeKeyAndOrderFront(nil)
-            NSApp.activate()
+            NSApp.activate(ignoringOtherApps: true)
             return
         }
 
@@ -286,7 +345,17 @@ final class AppOrchestrator {
             rootView: HistoryView(historyManager: historyManager, initialExpandedID: recordID)
         )
         window.makeKeyAndOrderFront(nil)
-        NSApp.activate()
+        NSApp.activate(ignoringOtherApps: true)
         self.historyWindow = window
+    }
+}
+
+/// 온보딩 윈도우의 X 버튼 클릭 시 완료 처리
+@MainActor
+final class OnboardingWindowDelegate: NSObject, NSWindowDelegate {
+    static let shared = OnboardingWindowDelegate()
+
+    func windowWillClose(_ notification: Notification) {
+        AppSettings.shared.hasCompletedOnboarding = true
     }
 }

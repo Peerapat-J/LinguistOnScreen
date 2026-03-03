@@ -2,6 +2,7 @@ const translations = {
     en: {
         "nav.features": "Features",
         "nav.howItWorks": "How It Works",
+        "nav.engines": "Engines",
         "nav.download": "Download",
         "hero.pill1": "Private",
         "hero.pill2": "Fast",
@@ -48,6 +49,7 @@ const translations = {
     ko: {
         "nav.features": "기능",
         "nav.howItWorks": "사용 방법",
+        "nav.engines": "번역 엔진",
         "nav.download": "다운로드",
         "hero.pill1": "프라이버시",
         "hero.pill2": "빠른 속도",
