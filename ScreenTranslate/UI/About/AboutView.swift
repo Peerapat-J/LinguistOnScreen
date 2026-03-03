@@ -26,7 +26,11 @@ struct AboutView: View {
                 AppOrchestrator.shared.checkForUpdates()
             }
             .disabled(!AppOrchestrator.shared.canCheckForUpdates)
+
+            Link("teams@filient.ai", destination: URL(string: "mailto:teams@filient.ai")!)
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
-        .frame(width: 300, height: 220)
+        .frame(width: 300, height: 240)
     }
 }

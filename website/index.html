@@ -178,6 +178,42 @@
     </div>
 </section>
 
+<!-- Interactive Demo -->
+<section id="try-it" class="try-demo">
+    <div class="container">
+        <h2 data-i18n="demo.title">Try it yourself</h2>
+        <p class="section-subtitle" data-i18n="demo.subtitle">Drag over the text below to see how ScreenTranslate works.</p>
+        <div class="demo-window">
+            <div class="demo-titlebar">
+                <div class="demo-traffic-lights">
+                    <span class="dot red"></span>
+                    <span class="dot yellow"></span>
+                    <span class="dot green"></span>
+                </div>
+                <span class="demo-titlebar-text">Document.pdf</span>
+            </div>
+            <div class="demo-content" id="demo-content">
+                <div class="demo-text" id="demo-text"></div>
+                <div class="demo-selection" id="demo-selection"></div>
+                <div class="demo-popup" id="demo-popup">
+                    <div class="demo-popup-status"></div>
+                    <div class="demo-popup-result"></div>
+                    <div class="demo-popup-actions">
+                        <button class="demo-popup-copy">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" stroke="currentColor" stroke-width="2"/></svg>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+                <div class="demo-hint" id="demo-hint" data-i18n="demo.hint">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style="margin-right:6px"><path d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    Drag to select text
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- Showcase -->
 <section class="showcase">
     <div class="container">
@@ -220,6 +256,7 @@
 <footer class="footer">
     <div class="container footer-inner">
         <p>&copy; 2026 hanchangmin</p>
+        <a href="mailto:teams@filient.ai" class="footer-email">teams@filient.ai</a>
     </div>
 </footer>
 
@@ -238,5 +275,6 @@
 }
 </script>
 <script src="i18n.js"></script>
+<script src="demo.js"></script>
 </body>
 </html>

@@ -108,13 +108,13 @@ struct SettingsView: View {
                 }
 
                 Picker(L10n.ocrEngine, selection: $settings.ocrProviderName) {
-                    Text("Apple Vision").tag("Apple Vision")
+                    Text(L10n.ocrEngineName).tag("Apple Vision")
                 }
                 .pickerStyle(.menu)
                 .disabled(true)
 
                 Picker(L10n.translationEngine, selection: $settings.translationProviderName) {
-                    Text("Apple Translation (로컬)").tag("Apple Translation")
+                    Text(L10n.translationEngineName).tag("Apple Translation")
                 }
                 .pickerStyle(.menu)
                 .disabled(true)
