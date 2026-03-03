@@ -22,7 +22,8 @@ final class DeepLTranslationProvider: TranslationProvider {
     func translate(text: String, from source: Locale.Language?, to target: Locale.Language) async throws -> String {
         var body: [String: Any] = [
             "text": [text],
-            "target_lang": LanguageCodeMapper.toDeepLCode(target)
+            "target_lang": LanguageCodeMapper.toDeepLCode(target),
+            "split_sentences": "nonewlines"
         ]
         if let source {
             body["source_lang"] = LanguageCodeMapper.toDeepLCode(source)
