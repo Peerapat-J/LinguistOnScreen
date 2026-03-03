@@ -185,8 +185,6 @@ final class AppSettings {
         Locale.Language(identifier: targetLanguageCode)
     }
 
-    // MARK: - Supported Languages
-
     // MARK: - System Language Detection
 
     /// 시스템 언어를 기반으로 기본 타겟 언어를 결정한다.
