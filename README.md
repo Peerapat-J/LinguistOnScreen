@@ -12,7 +12,7 @@ Powered by Apple Vision OCR. On-device by default, with optional cloud engines.
 [![Swift 6](https://img.shields.io/badge/Swift-6-orange)](https://swift.org)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue)](#license)
 
-[Download](https://screentranslate.filient.ai/) · [Website](https://screentranslate.filient.ai/)
+[Download](https://github.com/hcmhcs/screenTranslate/releases/latest) · [Website](https://screentranslate.filient.ai/)
 
 <table>
 <tr>
