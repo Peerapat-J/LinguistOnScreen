@@ -133,6 +133,37 @@ final class TranslationCoordinatorTests: XCTestCase {
         XCTAssertTrue(result.contains("\n\n"), "CJK 단락 구분이 보존되어야 한다")
     }
 
+    // MARK: - preprocessOCRText 리스트 감지 테스트
+
+    func test_preprocessOCRText_preservesBulletListBreaks() {
+        let input = """
+        • Completely Private - On-device by default. No servers, no tracking
+        • Instant Translation - One shortcut triggers area selection and OCR
+        • 18 Languages - Korean, English, Japanese, Chinese, and 14 more
+        """
+        let result = TranslationCoordinator.preprocessOCRText(input)
+        let lines = result.components(separatedBy: "\n\n")
+        XCTAssertEqual(lines.count, 3, "불릿 항목 사이에 줄바꿈이 보존되어야 한다")
+    }
+
+    func test_preprocessOCRText_preservesNumberedListBreaks() {
+        let input = """
+        1. First item description here
+        2. Second item description here
+        3. Third item description here
+        """
+        let result = TranslationCoordinator.preprocessOCRText(input)
+        let lines = result.components(separatedBy: "\n\n")
+        XCTAssertEqual(lines.count, 3, "번호 리스트 항목 사이에 줄바꿈이 보존되어야 한다")
+    }
+
+    func test_preprocessOCRText_nonListDashNotDetected() {
+        // 불릿이 아닌 하이픈 사용 (공백 없이 단어 시작)
+        let input = "This is a normal line with\n-no bullet here just a dash"
+        let result = TranslationCoordinator.preprocessOCRText(input)
+        XCTAssertFalse(result.contains("\n\n"), "불릿이 아닌 하이픈은 리스트로 감지하면 안 된다")
+    }
+
     // MARK: - Helpers
 
     private func makeBlankImage() -> CGImage {
