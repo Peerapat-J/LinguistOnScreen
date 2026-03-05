@@ -10,6 +10,7 @@ struct SettingsView: View {
     @State private var pendingDownloadCode: String?
     @State private var launchAtLogin = (SMAppService.mainApp.status == .enabled)
     @State private var isDownloading = false
+    @State private var downloadStartTime: Date?
 
     // API Key 입력 상태
     @State private var deepLKeyInput = ""
@@ -287,6 +288,7 @@ struct SettingsView: View {
         .alert(L10n.languagePackNotInstalled, isPresented: $showDownloadAlert) {
             Button(L10n.download) {
                 isDownloading = true
+                downloadStartTime = Date()
                 Task {
                     // 미설치 언어를 이미 설치된 언어와 쌍으로 구성하여 다운로드.
                     // 설치된 쪽은 시스템이 스킵하므로 미설치 언어만 실제 다운로드된다.
@@ -324,17 +326,38 @@ struct SettingsView: View {
         }
         .overlay {
             if isDownloading {
-                VStack(spacing: 8) {
+                VStack(spacing: 12) {
                     ProgressView()
                         .controlSize(.large)
-                    Text(L10n.downloading)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                    TimelineView(.periodic(from: .now, by: 1)) { _ in
+                        HStack(spacing: 8) {
+                            Text(L10n.downloading)
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                            if let start = downloadStartTime {
+                                Text(elapsedText(from: start))
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                                    .monospacedDigit()
+                            }
+                        }
+                    }
+                    Text(L10n.downloadingHint)
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .multilineTextAlignment(.center)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .background(.ultraThinMaterial)
             }
         }
+    }
+
+    private func elapsedText(from start: Date) -> String {
+        let seconds = Int(Date().timeIntervalSince(start))
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%d:%02d", m, s)
     }
 
     // MARK: - 상태 아이콘 (개별 언어 기준)
