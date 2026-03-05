@@ -3,7 +3,7 @@ import KeyboardShortcuts
 import TelemetryDeck
 
 extension KeyboardShortcuts.Name {
-    static let translate = Self("translate", default: .init(.t, modifiers: [.control, .shift]))
+    static let translate = Self("translate", default: .init(.t, modifiers: [.command, .shift]))
 }
 
 @main

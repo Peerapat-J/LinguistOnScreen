@@ -135,7 +135,7 @@ struct HistoryRowView: View {
                     .foregroundStyle(.tertiary)
 
                 // 타임스탬프
-                Text(record.timestamp, style: .relative)
+                Text(L10n.smartTimestamp(for: record.timestamp))
                     .font(.caption)
                     .foregroundStyle(.tertiary)
             }

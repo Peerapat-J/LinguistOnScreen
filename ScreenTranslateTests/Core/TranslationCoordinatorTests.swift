@@ -23,13 +23,13 @@ final class TranslationCoordinatorTests: XCTestCase {
         mockTranslation.translatedText = "안녕하세요"
 
         sut.startProcessing(image: makeBlankImage())
-        try? await Task.sleep(for: .milliseconds(100))
+        let state = await waitForTerminalState(sut)
 
-        if case .completed(let result) = sut.state {
+        if case .completed(let result) = state {
             XCTAssertEqual(result.translatedText, "안녕하세요")
             XCTAssertFalse(result.lowConfidence)
         } else {
-            XCTFail("completed 상태여야 한다: \(sut.state)")
+            XCTFail("completed 상태여야 한다: \(state)")
         }
     }
 
@@ -39,12 +39,12 @@ final class TranslationCoordinatorTests: XCTestCase {
         mockTranslation.translatedText = "안녕하세요"
 
         sut.startProcessing(image: makeBlankImage())
-        try? await Task.sleep(for: .milliseconds(100))
+        let state = await waitForTerminalState(sut)
 
-        if case .completed(let result) = sut.state {
+        if case .completed(let result) = state {
             XCTAssertTrue(result.lowConfidence)
         } else {
-            XCTFail("completed 상태여야 한다")
+            XCTFail("completed 상태여야 한다: \(state)")
         }
     }
 
@@ -52,12 +52,12 @@ final class TranslationCoordinatorTests: XCTestCase {
         mockOCR.shouldFail = true
 
         sut.startProcessing(image: makeBlankImage())
-        try? await Task.sleep(for: .milliseconds(100))
+        let state = await waitForTerminalState(sut)
 
-        if case .failed(let msg) = sut.state {
-            XCTAssertTrue(msg.contains("텍스트를 찾을 수 없습니다"))
+        if case .failed(let msg) = state {
+            XCTAssertEqual(msg, L10n.noTextFound)
         } else {
-            XCTFail("실패 상태여야 한다: \(sut.state)")
+            XCTFail("실패 상태여야 한다: \(state)")
         }
     }
 
@@ -66,12 +66,12 @@ final class TranslationCoordinatorTests: XCTestCase {
         mockTranslation.shouldFail = true
 
         sut.startProcessing(image: makeBlankImage())
-        try? await Task.sleep(for: .milliseconds(100))
+        let state = await waitForTerminalState(sut)
 
-        if case .failed = sut.state {
+        if case .failed = state {
             // Expected
         } else {
-            XCTFail("실패 상태여야 한다: \(sut.state)")
+            XCTFail("실패 상태여야 한다: \(state)")
         }
     }
 
@@ -79,7 +79,7 @@ final class TranslationCoordinatorTests: XCTestCase {
         mockOCR.recognizedText = "Hello"
         mockTranslation.translatedText = "안녕"
         sut.startProcessing(image: makeBlankImage())
-        try? await Task.sleep(for: .milliseconds(100))
+        _ = await waitForTerminalState(sut)
 
         sut.reset()
 
@@ -92,10 +92,8 @@ final class TranslationCoordinatorTests: XCTestCase {
         mockTranslation.translatedText = "안녕"
 
         sut.startProcessing(image: makeBlankImage())
-        try? await Task.sleep(for: .milliseconds(100))
+        _ = await waitForTerminalState(sut)
 
-        // MockTranslationProvider는 lastReceivedText만 추적하므로
-        // detectedLanguage 전달은 빌드 시 타입 체크로 보장
         XCTAssertEqual(mockTranslation.lastReceivedText, "Hello")
     }
 
@@ -133,13 +131,44 @@ final class TranslationCoordinatorTests: XCTestCase {
         XCTAssertTrue(result.contains("\n\n"), "CJK 단락 구분이 보존되어야 한다")
     }
 
+    // MARK: - preprocessOCRText 리스트 감지 테스트
+
+    func test_preprocessOCRText_preservesBulletListBreaks() {
+        let input = """
+        • Completely Private - On-device by default. No servers, no tracking
+        • Instant Translation - One shortcut triggers area selection and OCR
+        • 18 Languages - Korean, English, Japanese, Chinese, and 14 more
+        """
+        let result = TranslationCoordinator.preprocessOCRText(input)
+        let lines = result.components(separatedBy: "\n\n")
+        XCTAssertEqual(lines.count, 3, "불릿 항목 사이에 줄바꿈이 보존되어야 한다")
+    }
+
+    func test_preprocessOCRText_preservesNumberedListBreaks() {
+        let input = """
+        1. First item description here
+        2. Second item description here
+        3. Third item description here
+        """
+        let result = TranslationCoordinator.preprocessOCRText(input)
+        let lines = result.components(separatedBy: "\n\n")
+        XCTAssertEqual(lines.count, 3, "번호 리스트 항목 사이에 줄바꿈이 보존되어야 한다")
+    }
+
+    func test_preprocessOCRText_nonListDashNotDetected() {
+        // 불릿이 아닌 하이픈 사용 (공백 없이 단어 시작)
+        let input = "This is a normal line with\n-no bullet here just a dash"
+        let result = TranslationCoordinator.preprocessOCRText(input)
+        XCTAssertFalse(result.contains("\n\n"), "불릿이 아닌 하이픈은 리스트로 감지하면 안 된다")
+    }
+
     // MARK: - Helpers
 
+    private func waitForTerminalState(_ coordinator: TranslationCoordinator) async -> TranslationCoordinator.State {
+        await TestHelpers.waitForTerminalState(coordinator)
+    }
+
     private func makeBlankImage() -> CGImage {
-        let context = CGContext(data: nil, width: 10, height: 10,
-                                bitsPerComponent: 8, bytesPerRow: 0,
-                                space: CGColorSpaceCreateDeviceRGB(),
-                                bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-        return context.makeImage()!
+        TestHelpers.makeBlankImage()
     }
 }

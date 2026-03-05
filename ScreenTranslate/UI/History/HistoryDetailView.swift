@@ -58,7 +58,7 @@ struct HistoryDetailView: View {
 
                     Spacer()
 
-                    Text(record.timestamp, style: .relative)
+                    Text(L10n.smartTimestamp(for: record.timestamp))
                         .font(.caption)
                         .foregroundStyle(.tertiary)
                 }

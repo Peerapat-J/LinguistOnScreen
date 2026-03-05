@@ -155,6 +155,8 @@ final class TranslationCoordinator {
             with: "",
             options: .regularExpression
         )
+        // 2.4 불릿/번호 리스트 감지: 연속 리스트 항목 사이에 \n\n 삽입
+        result = Self.detectListBreaks(result)
         // 2.5 단락 경계 감지: 문장 종결 + 짧은 줄 → \n을 \n\n으로 업그레이드
         result = Self.detectParagraphBreaks(result)
         // 3. 이중 줄바꿈(단락 구분)을 임시 플레이스홀더로 보존
@@ -177,6 +179,46 @@ final class TranslationCoordinator {
             options: .regularExpression
         )
         return result.trimmingCharacters(in: .whitespaces)
+    }
+
+    /// 불릿/번호 리스트 감지: 연속 리스트 항목 사이에 \n\n 삽입.
+    private static func detectListBreaks(_ text: String) -> String {
+        let lines = text.components(separatedBy: "\n")
+        guard lines.count >= 2 else { return text }
+
+        let bulletPattern = "^\\s*[•·\\-*▪▸►◦‣⁃]\\s"
+        let numberedPattern = "^\\s*\\d+[.)]\\s"
+
+        func isList(_ line: String) -> Bool {
+            let t = line.trimmingCharacters(in: .whitespaces)
+            return t.range(of: bulletPattern, options: .regularExpression) != nil
+                || t.range(of: numberedPattern, options: .regularExpression) != nil
+        }
+
+        var result: [String] = []
+        for (i, line) in lines.enumerated() {
+            let currentIsList = isList(line)
+            let nextIsList = i < lines.count - 1 ? isList(lines[i + 1]) : false
+
+            // 리스트 시작 전: 이전 줄이 비어있지 않으면 빈 줄 삽입
+            if !currentIsList && nextIsList && !result.isEmpty {
+                let prevTrimmed = line.trimmingCharacters(in: .whitespaces)
+                if !prevTrimmed.isEmpty {
+                    result.append(line)
+                    result.append("")
+                    continue
+                }
+            }
+
+            result.append(line)
+
+            // 연속 리스트 항목 사이: 빈 줄 삽입
+            if currentIsList && nextIsList {
+                result.append("")
+            }
+        }
+
+        return result.joined(separator: "\n")
     }
 
     /// 단락 경계 감지: 문장 종결 부호 + 짧은 줄 → \n을 \n\n으로 업그레이드.

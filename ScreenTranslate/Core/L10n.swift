@@ -123,7 +123,69 @@ nonisolated enum L10n {
     static var onboardingLangNotInstalled: String { s("Language pack not installed", ko: "언어팩 미설치") }
     static var onboardingNext: String { s("Next", ko: "다음") }
     static var onboardingDone: String { s("Get Started", ko: "시작하기") }
-    static var onboardingSkip: String { s("Skip", ko: "건너뛰기") }
+    // Onboarding Permission Step
+    static var onboardingPermDesc: String {
+        s("ScreenTranslate needs screen recording permission to read text on your screen.",
+          ko: "화면의 텍스트를 읽기 위해 화면 기록 권한이 필요합니다.")
+    }
+    static var onboardingPermPrivacy1: String {
+        s("Used only for text recognition",
+          ko: "텍스트 인식에만 사용")
+    }
+    static var onboardingPermPrivacy2: String {
+        s("No recording, saving, or sending",
+          ko: "녹화·저장·전송 없음")
+    }
+    static var onboardingPermPrivacy3: String {
+        s("All processing stays on your device",
+          ko: "모든 처리는 기기 내에서 수행")
+    }
+    static var onboardingPermRestart: String {
+        s("The app will restart automatically after granting permission.",
+          ko: "권한 허용 후 앱이 자동으로 다시 시작됩니다.")
+    }
+    static var onboardingDownloadLater: String {
+        s("Download Later",
+          ko: "나중에 다운로드")
+    }
+
+    // MARK: - Timestamp
+
+    static var justNow: String { s("Just now", ko: "방금 전") }
+    static func minutesAgo(_ n: Int) -> String { s("\(n) min ago", ko: "\(n)분 전") }
+    static var today: String { s("Today", ko: "오늘") }
+    static var yesterday: String { s("Yesterday", ko: "어제") }
+
+    /// 스마트 타임스탬프: 최근은 상대 시간, 오래된 건 절대 시간.
+    static func smartTimestamp(for date: Date) -> String {
+        let now = Date()
+        let seconds = now.timeIntervalSince(date)
+        let calendar = Calendar.current
+
+        if seconds < 60 {
+            return justNow
+        }
+        if seconds < 3600 {
+            return minutesAgo(Int(seconds / 60))
+        }
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+
+        let timeString = timeFormatter.string(from: date)
+
+        if calendar.isDateInToday(date) {
+            return "\(today) \(timeString)"
+        }
+        if calendar.isDateInYesterday(date) {
+            return "\(yesterday) \(timeString)"
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "M/d"
+        return "\(dateFormatter.string(from: date)) \(timeString)"
+    }
 
     // MARK: - Errors
 

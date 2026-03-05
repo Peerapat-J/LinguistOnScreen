@@ -12,7 +12,9 @@ Powered by Apple Vision OCR. On-device by default, with optional cloud engines.
 [![Swift 6](https://img.shields.io/badge/Swift-6-orange)](https://swift.org)
 [![License](https://img.shields.io/badge/license-GPL--3.0-blue)](#license)
 
-[Download](https://screentranslate.filient.ai/) · [Website](https://screentranslate.filient.ai/)
+<a href="https://www.producthunt.com/products/screentranslate"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1089066&theme=neutral&t=1772670917164" alt="Product Hunt" width="200"></a>
+
+[Download](https://github.com/hcmhcs/screenTranslate/releases/latest) · [Website](https://screentranslate.filient.ai/?utm_source=github&utm_medium=readme&utm_campaign=screentranslate)
 
 <table>
 <tr>
@@ -33,7 +35,7 @@ Powered by Apple Vision OCR. On-device by default, with optional cloud engines.
 
 ## How It Works
 
-1. **Press shortcut** — Hit `Ctrl + Shift + T` (customizable) to enter selection mode
+1. **Press shortcut** — Hit `Cmd + Shift + T` (customizable) to enter selection mode
 2. **Drag to select** — Draw a rectangle around the text you want to translate
 3. **Read translation** — Translation appears in a popup near your selection
 
@@ -41,14 +43,28 @@ That's it. No copy-paste, no browser tabs, no context switching.
 
 ## Features
 
+- **Free & Open Source** — No subscription, no ads, no hidden costs. Licensed under GPL-3.0
 - **Completely Private** — On-device by default. No servers, no tracking, no data collection
 - **Instant Translation** — One shortcut triggers area selection, OCR, and translation in a single motion
-- **18 Languages** — Korean, English, Japanese, Chinese, and 14 more. Auto-detect source language supported
+- **20 Languages** — Auto-detect source language supported. Full list below
 - **Works Offline** — Download language packs once, translate anywhere without internet
-- **BYOK Cloud Engines** — Bring your own API key for DeepL, Google Cloud Translation, or Microsoft Azure Translator
+- **Optional Cloud Engines (BYOK)** — Already works without any API key. Optionally connect DeepL, Google Cloud, or Azure for more languages
 - **Auto Copy** — Translation results are automatically copied to clipboard
 - **Translation History** — Every translation is saved. Search and copy previous results anytime
 - **Menu Bar App** — Lightweight, always available, never in the way
+
+### Supported Languages
+
+| | | | |
+|---|---|---|---|
+| Korean | English | Japanese | Chinese (Simplified) |
+| Chinese (Traditional) | French | German | Spanish |
+| Portuguese | Italian | Russian | Arabic |
+| Dutch | Hindi | Indonesian | Polish |
+| Thai | Turkish | Ukrainian | Vietnamese |
+
+All powered by Apple Translation — on-device and offline capable.
+Connect your own API key (DeepL, Google, Azure) for additional languages.
 
 ## Requirements
 
@@ -75,7 +91,7 @@ Build and run with Xcode 16+.
 
 1. Launch ScreenTranslate — it appears in your **menu bar**
 2. Grant **Screen Recording** permission when prompted (System Settings → Privacy & Security)
-3. Press `Ctrl + Shift + T` and drag over any text on screen
+3. Press `Cmd + Shift + T` and drag over any text on screen
 4. The translation popup appears instantly
 
 ### Changing Languages

@@ -241,5 +241,13 @@ final class AppSettings {
         ("it", "Italiano"),
         ("ru", "Русский"),
         ("ar", "العربية"),
+        ("nl", "Nederlands"),
+        ("hi", "हिन्दी"),
+        ("id", "Bahasa Indonesia"),
+        ("pl", "Polski"),
+        ("th", "ไทย"),
+        ("tr", "Türkçe"),
+        ("uk", "Українська"),
+        ("vi", "Tiếng Việt"),
     ]
 }
