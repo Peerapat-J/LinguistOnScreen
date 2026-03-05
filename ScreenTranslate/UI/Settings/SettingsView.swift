@@ -26,8 +26,10 @@ struct SettingsView: View {
                     Text("한국어").tag("ko")
                 }
                 .pickerStyle(.menu)
+                .help(L10n.appLanguageHelp)
 
                 Toggle(L10n.launchAtLogin, isOn: $launchAtLogin)
+                    .help(L10n.launchAtLoginHelp)
                     .onChange(of: launchAtLogin) { _, newValue in
                         Task {
                             do {
@@ -82,6 +84,7 @@ struct SettingsView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
+                    .help(L10n.sourceLanguageHelp)
 
                     Button {
                         let oldSource = settings.sourceLanguageCode
@@ -121,6 +124,7 @@ struct SettingsView: View {
                         }
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
+                    .help(L10n.targetLanguageHelp)
                 }
 
                 Picker(L10n.ocrEngine, selection: $settings.ocrProviderName) {
@@ -128,17 +132,45 @@ struct SettingsView: View {
                 }
                 .pickerStyle(.menu)
                 .disabled(true)
+                .help(L10n.ocrEngineHelp)
 
                 Picker(L10n.translationEngine, selection: $settings.translationProviderName) {
-                    Text(L10n.translationEngineName).tag("Apple Translation")
-                    Text(settings.hasDeepLKey ? "DeepL" : "DeepL (\(L10n.apiKeysSection))").tag("DeepL")
-                    Text(settings.hasGoogleKey ? "Google Cloud" : "Google Cloud (\(L10n.apiKeysSection))").tag("Google Cloud")
-                    Text(settings.hasAzureKey ? "Microsoft Azure" : "Microsoft Azure (\(L10n.apiKeysSection))").tag("Microsoft Azure")
+                    Label {
+                        Text(L10n.translationEngineName)
+                    } icon: {
+                        engineStatusIcon(ready: true)
+                    }
+                    .tag("Apple Translation")
+
+                    Label {
+                        Text("DeepL")
+                    } icon: {
+                        engineStatusIcon(ready: settings.hasDeepLKey)
+                    }
+                    .tag("DeepL")
+
+                    Label {
+                        Text("Google Cloud")
+                    } icon: {
+                        engineStatusIcon(ready: settings.hasGoogleKey)
+                    }
+                    .tag("Google Cloud")
+
+                    Label {
+                        Text("Microsoft Azure")
+                    } icon: {
+                        engineStatusIcon(ready: settings.hasAzureKey)
+                    }
+                    .tag("Microsoft Azure")
                 }
                 .pickerStyle(.menu)
                 .onChange(of: settings.translationProviderName) { _, _ in
                     AppOrchestrator.shared.updateTranslationProvider()
                 }
+
+                Text(engineDescription(for: settings.translationProviderName))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
 
                 // DeepL 선택 시 API 키 입력 인라인 표시
                 if settings.translationProviderName == "DeepL" {
@@ -157,17 +189,27 @@ struct SettingsView: View {
                             .controlSize(.small)
                         }
                     } else {
-                        HStack {
-                            SecureField(L10n.enterApiKey, text: $deepLKeyInput)
-                                .textFieldStyle(.roundedBorder)
-                            Button(L10n.confirm) {
-                                guard !deepLKeyInput.isEmpty else { return }
-                                try? settings.saveDeepLKey(deepLKeyInput)
-                                deepLKeyInput = ""
-                                AppOrchestrator.shared.updateTranslationProvider()
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                SecureField(L10n.enterApiKey, text: $deepLKeyInput)
+                                    .textFieldStyle(.roundedBorder)
+                                Button(L10n.confirm) {
+                                    guard !deepLKeyInput.isEmpty else { return }
+                                    try? settings.saveDeepLKey(deepLKeyInput)
+                                    deepLKeyInput = ""
+                                    AppOrchestrator.shared.updateTranslationProvider()
+                                }
+                                .controlSize(.small)
+                                .disabled(deepLKeyInput.isEmpty)
                             }
-                            .controlSize(.small)
-                            .disabled(deepLKeyInput.isEmpty)
+                            Button(L10n.engineGuide) {
+                                if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
+                                    NSWorkspace.shared.open(url)
+                                }
+                            }
+                            .font(.caption)
+                            .buttonStyle(.plain)
+                            .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -189,17 +231,27 @@ struct SettingsView: View {
                             .controlSize(.small)
                         }
                     } else {
-                        HStack {
-                            SecureField(L10n.enterApiKey, text: $googleKeyInput)
-                                .textFieldStyle(.roundedBorder)
-                            Button(L10n.confirm) {
-                                guard !googleKeyInput.isEmpty else { return }
-                                try? settings.saveGoogleKey(googleKeyInput)
-                                googleKeyInput = ""
-                                AppOrchestrator.shared.updateTranslationProvider()
+                        VStack(alignment: .leading, spacing: 4) {
+                            HStack {
+                                SecureField(L10n.enterApiKey, text: $googleKeyInput)
+                                    .textFieldStyle(.roundedBorder)
+                                Button(L10n.confirm) {
+                                    guard !googleKeyInput.isEmpty else { return }
+                                    try? settings.saveGoogleKey(googleKeyInput)
+                                    googleKeyInput = ""
+                                    AppOrchestrator.shared.updateTranslationProvider()
+                                }
+                                .controlSize(.small)
+                                .disabled(googleKeyInput.isEmpty)
                             }
-                            .controlSize(.small)
-                            .disabled(googleKeyInput.isEmpty)
+                            Button(L10n.engineGuide) {
+                                if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
+                                    NSWorkspace.shared.open(url)
+                                }
+                            }
+                            .font(.caption)
+                            .buttonStyle(.plain)
+                            .foregroundStyle(.secondary)
                         }
                     }
                 }
@@ -226,7 +278,7 @@ struct SettingsView: View {
                             .controlSize(.small)
                         }
                     } else {
-                        VStack(spacing: 6) {
+                        VStack(alignment: .leading, spacing: 4) {
                             HStack {
                                 SecureField(L10n.enterApiKey, text: $azureKeyInput)
                                     .textFieldStyle(.roundedBorder)
@@ -246,13 +298,23 @@ struct SettingsView: View {
                                 .controlSize(.small)
                                 .disabled(azureKeyInput.isEmpty)
                             }
+                            Button(L10n.engineGuide) {
+                                if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
+                                    NSWorkspace.shared.open(url)
+                                }
+                            }
+                            .font(.caption)
+                            .buttonStyle(.plain)
+                            .foregroundStyle(.secondary)
                         }
                     }
                 }
             }
+            .animation(.easeInOut(duration: 0.2), value: settings.translationProviderName)
 
             Section(L10n.shortcutSection) {
                 KeyboardShortcuts.Recorder(L10n.translationShortcut, name: .translate)
+                    .help(L10n.shortcutHelp)
             }
 
             Section(L10n.advancedSection) {
@@ -358,6 +420,30 @@ struct SettingsView: View {
         let m = seconds / 60
         let s = seconds % 60
         return String(format: "%d:%02d", m, s)
+    }
+
+    // MARK: - 엔진 설명
+
+    private func engineDescription(for name: String) -> String {
+        switch name {
+        case "DeepL": return L10n.engineDescDeepL
+        case "Google Cloud": return L10n.engineDescGoogle
+        case "Microsoft Azure": return L10n.engineDescAzure
+        default: return L10n.engineDescApple
+        }
+    }
+
+    // MARK: - 엔진 상태 아이콘
+
+    @ViewBuilder
+    private func engineStatusIcon(ready: Bool) -> some View {
+        if ready {
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(.green)
+        } else {
+            Image(systemName: "key")
+                .foregroundStyle(.orange)
+        }
     }
 
     // MARK: - 상태 아이콘 (개별 언어 기준)

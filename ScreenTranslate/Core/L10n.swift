@@ -67,6 +67,29 @@ nonisolated enum L10n {
     static var quotaExceeded: String { s("API quota exceeded. Please check your plan.", ko: "API 사용량을 초과했습니다. 요금제를 확인해주세요.") }
     static var regionLabel: String { s("Region", ko: "리전") }
     static var regionPlaceholder: String { s("e.g. koreacentral", ko: "예: koreacentral") }
+    static var engineGuide: String { s("Engine setup guide", ko: "엔진 설정 가이드") }
+
+    // MARK: - Engine Descriptions
+
+    static var engineDescApple: String { s("On-device · No internet required · 20 languages · Free", ko: "온디바이스 · 인터넷 불필요 · 20개 언어 · 무료") }
+    static var engineDescDeepL: String { s("Cloud · API key required", ko: "클라우드 · API 키 필요") }
+    static var engineDescGoogle: String { s("Cloud · API key required", ko: "클라우드 · API 키 필요") }
+    static var engineDescAzure: String { s("Cloud · API key + region required", ko: "클라우드 · API 키 + 리전 필요") }
+
+    // MARK: - Help Tooltips
+
+    static var appLanguageHelp: String { s("Change the display language of the app interface", ko: "앱 인터페이스의 표시 언어를 변경합니다") }
+    static var launchAtLoginHelp: String { s("Automatically start ScreenTranslate when you log in", ko: "로그인 시 ScreenTranslate를 자동으로 시작합니다") }
+    static var sourceLanguageHelp: String { s("Language of the text to translate. Auto Detect works for most cases", ko: "번역할 텍스트의 언어. 대부분의 경우 자동 감지로 충분합니다") }
+    static var targetLanguageHelp: String { s("Language to translate into", ko: "번역 결과 언어") }
+    static var ocrEngineHelp: String { s("Text recognition engine. Apple Vision runs on-device", ko: "텍스트 인식 엔진. Apple Vision은 온디바이스로 동작합니다") }
+    static var shortcutHelp: String { s("Global shortcut to start screen translation. Default: Cmd+Shift+T", ko: "화면 번역을 시작하는 전역 단축키. 기본값: Cmd+Shift+T") }
+
+    // MARK: - About Links
+
+    static var aboutWebsite: String { s("Website", ko: "웹사이트") }
+    static var aboutEnginesGuide: String { s("Translation Engines Guide", ko: "번역 엔진 가이드") }
+    static var aboutPrivacyPolicy: String { s("Privacy Policy", ko: "개인정보처리방침") }
 
     // MARK: - Advanced
 
