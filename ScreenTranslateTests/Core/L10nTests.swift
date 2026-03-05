@@ -124,6 +124,7 @@ final class L10nTests: XCTestCase {
             ("confirm", L10n.confirm),
             ("download", L10n.download),
             ("downloading", L10n.downloading),
+            ("downloadingHint", L10n.downloadingHint),
             ("later", L10n.later),
 
             // API Keys
