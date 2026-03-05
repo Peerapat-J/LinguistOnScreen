@@ -9,6 +9,7 @@ struct OnboardingView: View {
     @State private var selectedTargetCode: String = AppSettings.shared.targetLanguageCode
     @State private var isDownloading = false
     @State private var downloadCompleted = false
+    @State private var downloadStartTime: Date?
     var permissionChecker: PermissionChecking = SystemPermissionChecker()
     var onComplete: () -> Void
 
@@ -227,12 +228,26 @@ struct OnboardingView: View {
         Group {
             let status = packManager.languageStatuses[selectedTargetCode]
             if isDownloading {
-                HStack(spacing: 8) {
-                    ProgressView()
-                        .controlSize(.small)
-                    Text(L10n.downloading)
-                        .font(.callout)
-                        .foregroundStyle(.secondary)
+                VStack(spacing: 8) {
+                    TimelineView(.periodic(from: .now, by: 1)) { _ in
+                        HStack(spacing: 8) {
+                            ProgressView()
+                                .controlSize(.small)
+                            Text(L10n.downloading)
+                                .font(.callout)
+                                .foregroundStyle(.secondary)
+                            if let start = downloadStartTime {
+                                Text(elapsedText(from: start))
+                                    .font(.caption)
+                                    .foregroundStyle(.tertiary)
+                                    .monospacedDigit()
+                            }
+                        }
+                    }
+                    Text(L10n.downloadingHint)
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                        .multilineTextAlignment(.center)
                 }
             } else if status == .installed || downloadCompleted {
                 Label(L10n.onboardingLangInstalled, systemImage: "checkmark.circle.fill")
@@ -317,8 +332,16 @@ struct OnboardingView: View {
 
     // MARK: - Actions
 
+    private func elapsedText(from start: Date) -> String {
+        let seconds = Int(Date().timeIntervalSince(start))
+        let m = seconds / 60
+        let s = seconds % 60
+        return String(format: "%d:%02d", m, s)
+    }
+
     private func downloadLanguagePack() {
         isDownloading = true
+        downloadStartTime = Date()
         Task {
             let downloadCode = selectedTargetCode
             // 온보딩에서는 항상 타겟 언어를 다운로드하므로 SettingsView의 source/target 조건 분기가 불필요.
