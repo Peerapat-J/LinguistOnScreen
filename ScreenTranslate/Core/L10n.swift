@@ -53,7 +53,7 @@ nonisolated enum L10n {
     static var confirm: String { s("OK", ko: "확인") }
     static var download: String { s("Download", ko: "다운로드") }
     static var downloading: String { s("Downloading...", ko: "다운로드 중...") }
-    static var downloadingHint: String { s("This may take a few minutes depending on your network. Please wait.", ko: "네트워크 환경에 따라 몇 분 정도 걸릴 수 있습니다. 잠시만 기다려 주세요.") }
+    static var downloadingHint: String { s("If a system popup appears below, tap Download.\nIt may look frozen, but the download is in progress.\nThis can take a few minutes depending on your network.", ko: "아래에 시스템 팝업이 나타나면 다운로드를 눌러주세요.\n화면이 멈춘 것처럼 보일 수 있지만 정상적으로 진행 중입니다.\n네트워크 환경에 따라 몇 분 정도 걸릴 수 있습니다.") }
     static var later: String { s("Later", ko: "나중에") }
 
     // MARK: - API Keys
