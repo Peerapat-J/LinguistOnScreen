@@ -44,7 +44,7 @@ nonisolated enum L10n {
     static var ocrEngine: String { s("OCR Engine", ko: "OCR 엔진") }
     static var translationEngine: String { s("Translation Engine", ko: "번역 엔진") }
     static var shortcutSection: String { s("Shortcut", ko: "단축키") }
-    static var translationShortcut: String { s("Translation Shortcut", ko: "번역 단축키") }
+    static var translationShortcut: String { s("Screen Translate Shortcut", ko: "화면 캡처 번역 단축키") }
     static var ocrEngineName: String { s("Apple Vision (Local)", ko: "Apple Vision (로컬)") }
     static var translationEngineName: String { s("Apple Translation (Local)", ko: "Apple Translation (로컬)") }
     static var swapLanguages: String { s("Swap Languages", ko: "언어 교체") }
