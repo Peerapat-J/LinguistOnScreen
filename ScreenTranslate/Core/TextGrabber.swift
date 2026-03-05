@@ -48,16 +48,16 @@ enum TextGrabber {
         guard AXUIElementCopyAttributeValue(systemElement, kAXFocusedApplicationAttribute as CFString, &focusedApp) == .success else {
             return nil
         }
+        let appElement = focusedApp as! AXUIElement  // CoreFoundation 타입 — 캐스트 항상 성공
 
         var focusedElement: AnyObject?
-        // swiftlint:disable:next force_cast
-        guard AXUIElementCopyAttributeValue(focusedApp as! AXUIElement, kAXFocusedUIElementAttribute as CFString, &focusedElement) == .success else {
+        guard AXUIElementCopyAttributeValue(appElement, kAXFocusedUIElementAttribute as CFString, &focusedElement) == .success else {
             return nil
         }
+        let uiElement = focusedElement as! AXUIElement  // CoreFoundation 타입 — 캐스트 항상 성공
 
         var selectedText: AnyObject?
-        // swiftlint:disable:next force_cast
-        guard AXUIElementCopyAttributeValue(focusedElement as! AXUIElement, kAXSelectedTextAttribute as CFString, &selectedText) == .success else {
+        guard AXUIElementCopyAttributeValue(uiElement, kAXSelectedTextAttribute as CFString, &selectedText) == .success else {
             return nil
         }
 
@@ -99,10 +99,12 @@ enum TextGrabber {
         let copySucceeded = pasteboard.changeCount != originalChangeCount
         let newText = pasteboard.string(forType: .string)
 
-        // 클립보드 원본 복원
+        // 클립보드 원본 복원 (비어있었으면 비운 상태로 복원)
         if let backup {
             pasteboard.clearContents()
             pasteboard.setString(backup, forType: .string)
+        } else {
+            pasteboard.clearContents()
         }
 
         guard copySucceeded, let text = newText, !text.isEmpty else {
