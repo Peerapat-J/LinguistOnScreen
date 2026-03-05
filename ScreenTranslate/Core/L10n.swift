@@ -149,6 +149,44 @@ nonisolated enum L10n {
           ko: "나중에 다운로드")
     }
 
+    // MARK: - Timestamp
+
+    static var justNow: String { s("Just now", ko: "방금 전") }
+    static func minutesAgo(_ n: Int) -> String { s("\(n) min ago", ko: "\(n)분 전") }
+    static var today: String { s("Today", ko: "오늘") }
+    static var yesterday: String { s("Yesterday", ko: "어제") }
+
+    /// 스마트 타임스탬프: 최근은 상대 시간, 오래된 건 절대 시간.
+    static func smartTimestamp(for date: Date) -> String {
+        let now = Date()
+        let seconds = now.timeIntervalSince(date)
+        let calendar = Calendar.current
+
+        if seconds < 60 {
+            return justNow
+        }
+        if seconds < 3600 {
+            return minutesAgo(Int(seconds / 60))
+        }
+
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+
+        let timeString = timeFormatter.string(from: date)
+
+        if calendar.isDateInToday(date) {
+            return "\(today) \(timeString)"
+        }
+        if calendar.isDateInYesterday(date) {
+            return "\(yesterday) \(timeString)"
+        }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "M/d"
+        return "\(dateFormatter.string(from: date)) \(timeString)"
+    }
+
     // MARK: - Errors
 
     static var noTextFound: String { s("No text found in the selected area.", ko: "선택한 영역에서 텍스트를 찾을 수 없습니다.") }
