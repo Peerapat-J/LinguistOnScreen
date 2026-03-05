@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-03-05
+
+### Added
+
+- Engine inline descriptions in Settings (shows engine type and API key requirement)
+- Engine status icons in translation engine picker (key status at a glance)
+- Engine setup guide link for cloud engines (opens website engines page)
+- Help tooltips on 6 settings controls (hover to see description)
+- External links section in About window (Website, Engines Guide, Privacy Policy, GitHub)
+
+### Improved
+
+- Language pack download UX in Settings and Onboarding (progress indicator, elapsed time, hints)
+
 ## [1.3.0] - 2026-03-05
 
 ### Added
