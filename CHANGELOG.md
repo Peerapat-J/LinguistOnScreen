@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.4.1] - 2026-03-07
+
+### Highlights
+
+- 🆕 Popup font size setting — adjust translation popup text size (11pt to 20pt)
+
+### Added
+
+- Popup font size setting in General section (stepper, 11-20pt, default 13pt)
+- Dynamic popup size calculation based on font size
+
 ## [1.4.0] - 2026-03-06
 
 ### Highlights
