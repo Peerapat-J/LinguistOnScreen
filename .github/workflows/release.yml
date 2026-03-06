@@ -81,7 +81,9 @@ jobs:
           -authenticationKeyID "$APPLE_API_KEY_ID" \
           -authenticationKeyIssuerID "$APPLE_API_ISSUER_ID" \
           MARKETING_VERSION=${{ steps.version.outputs.VERSION }} \
-          CURRENT_PROJECT_VERSION=${{ steps.version.outputs.VERSION }}
+          CURRENT_PROJECT_VERSION=${{ steps.version.outputs.VERSION }} \
+          CODE_SIGN_STYLE=Manual \
+          CODE_SIGN_IDENTITY="Developer ID Application"
 
     # 8. Export (Developer ID 서명)
     - name: Export archive
