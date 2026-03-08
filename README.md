@@ -86,6 +86,15 @@ Connect your own API key (DeepL, Google, Azure) for additional languages.
 
 Download the latest version from the [website](https://screentranslate.filient.ai/).
 
+### Homebrew
+
+```bash
+brew tap hcmhcs/tap
+brew install --cask screentranslate
+```
+
+> We're aiming to get listed on the official Homebrew Cask — if you find this useful, a ⭐ on GitHub would really help!
+
 ### Build from Source
 
 ```bash

@@ -330,7 +330,49 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # 19. 정리
+    # 19. Homebrew Tap 업데이트
+    - name: Update Homebrew Tap
+      env:
+        TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+      run: |
+        VERSION="${{ steps.version.outputs.VERSION }}"
+        DMG_FILE="$RUNNER_TEMP/ScreenTranslate-${VERSION}.dmg"
+        SHA256=$(shasum -a 256 "$DMG_FILE" | awk '{print $1}')
+
+        git clone https://x-access-token:${TAP_GITHUB_TOKEN}@github.com/hcmhcs/homebrew-tap.git $RUNNER_TEMP/homebrew-tap
+        cd $RUNNER_TEMP/homebrew-tap
+
+        mkdir -p Casks
+        cat > Casks/screentranslate.rb << 'CASKEOF'
+        cask "screentranslate" do
+          version "REPLACE_VERSION"
+          sha256 "REPLACE_SHA256"
+
+          url "https://github.com/hcmhcs/screenTranslate/releases/download/v#{version}/ScreenTranslate-#{version}.dmg"
+          name "ScreenTranslate"
+          desc "Instant screen translation for macOS - capture or select text to translate"
+          homepage "https://screentranslate.filient.ai"
+
+          depends_on macos: ">= :sequoia"
+
+          app "ScreenTranslate.app"
+
+          zap trash: [
+            "~/Library/Preferences/com.filient.ScreenTranslate.plist",
+            "~/Library/Application Support/com.filient.ScreenTranslate",
+          ]
+        end
+        CASKEOF
+        sed -i '' "s/REPLACE_VERSION/${VERSION}/" Casks/screentranslate.rb
+        sed -i '' "s/REPLACE_SHA256/${SHA256}/" Casks/screentranslate.rb
+
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add Casks/screentranslate.rb
+        git commit -m "Update screentranslate to ${VERSION}"
+        git push
+
+    # 20. 정리
     - name: Cleanup
       if: always()
       run: |
