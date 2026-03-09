@@ -36,6 +36,12 @@ nonisolated enum L10n {
     // MARK: - Settings
 
     static var generalSection: String { s("General", ko: "일반") }
+    static var generalTab: String { s("General", ko: "일반") }
+    static var advancedTab: String { s("Advanced", ko: "고급") }
+    static var engineSection: String { s("Translation Engine", ko: "번역 엔진") }
+    static var popupSection: String { s("Popup", ko: "팝업") }
+    static var appSection: String { s("App", ko: "앱") }
+    static var otherSection: String { s("Other", ko: "기타") }
     static var appLanguageLabel: String { s("App Language", ko: "앱 언어") }
     static var translationSection: String { s("Translation", ko: "번역") }
     static var sourceLanguageLabel: String { s("Source", ko: "원문") }
