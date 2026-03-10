@@ -337,7 +337,7 @@ final class TranslationPopupWindow: NSPanel {
 
     /// NSAttributedString 기반 텍스트 높이 측정 — 폰트 메트릭으로 정확한 높이 계산.
     private func measureTextHeight(_ text: String, width: CGFloat) -> CGFloat {
-        let font = NSFont.systemFont(ofSize: AppSettings.shared.popupFontSize)
+        let font = FontManager.shared.font(size: AppSettings.shared.popupFontSize)
         let rect = NSAttributedString(string: text, attributes: [.font: font])
             .boundingRect(
                 with: CGSize(width: width - 32, height: .greatestFiniteMagnitude),

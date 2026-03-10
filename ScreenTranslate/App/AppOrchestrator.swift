@@ -69,6 +69,11 @@ final class AppOrchestrator {
     }
 
     func setup() {
+        // 번들 폰트 등록 및 카탈로그 로드
+        FontManager.shared.registerBundledFonts()
+        FontManager.shared.loadCatalog()
+        FontManager.shared.scanInstalledFonts()
+
         KeyboardShortcuts.onKeyUp(for: .translate) { [weak self] in
             Task { @MainActor in
                 self?.startTranslation()
