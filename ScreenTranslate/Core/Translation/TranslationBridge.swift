@@ -4,7 +4,7 @@ import Translation
 /// Apple Translation Framework는 SwiftUI `.translationTask` modifier를 통해서만
 /// TranslationSession을 획득할 수 있다. TranslationBridge는 크기 0의 투명 뷰로,
 /// 앱 UI 계층에 항상 존재하며 번역 요청을 처리한다.
-@Observable
+@MainActor @Observable
 final class TranslationBridge {
     static let shared = TranslationBridge()
 
@@ -44,14 +44,15 @@ final class TranslationBridge {
             self.errorMessage = nil
 
             // C5: Apple 공식 패턴 — invalidate()로 재트리거
-            if self.configuration != nil {
-                if self.configuration!.source != source || self.configuration!.target != target {
+            if var config = self.configuration {
+                if config.source != source || config.target != target {
                     self.configuration = TranslationSession.Configuration(
                         source: source,
                         target: target
                     )
                 } else {
-                    self.configuration!.invalidate()
+                    config.invalidate()
+                    self.configuration = config  // struct이므로 writeback 필수
                 }
             } else {
                 self.configuration = TranslationSession.Configuration(
