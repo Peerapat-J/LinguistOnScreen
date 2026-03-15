@@ -24,9 +24,6 @@ struct SettingsView: View {
     @State private var pendingCatalogFont: FontManager.CatalogFont?
 
     // API Key 입력 상태
-    @State private var deepLKeyInput = ""
-    @State private var googleKeyInput = ""
-    @State private var azureKeyInput = ""
     @State private var azureRegionInput = ""
 
     var body: some View {
@@ -317,142 +314,61 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                // DeepL 선택 시 API 키 입력 인라인 표시
+                // DeepL API 키
                 if settings.translationProviderName == "DeepL" {
-                    if settings.hasDeepLKey {
-                        HStack {
-                            Label(L10n.apiKeySaved, systemImage: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                                .font(.callout)
-                            Spacer()
-                            Button(L10n.clear) {
-                                settings.deleteDeepLKey()
-                                deepLKeyInput = ""
-                                settings.translationProviderName = "Apple Translation"
-                                AppOrchestrator.shared.updateTranslationProvider()
-                            }
-                            .controlSize(.small)
+                    APIKeySection(
+                        hasKey: settings.hasDeepLKey,
+                        savedLabel: nil,
+                        onSave: { key in
+                            try? settings.saveDeepLKey(key)
+                            AppOrchestrator.shared.updateTranslationProvider()
+                        },
+                        onDelete: {
+                            settings.deleteDeepLKey()
+                            settings.translationProviderName = "Apple Translation"
+                            AppOrchestrator.shared.updateTranslationProvider()
                         }
-                    } else {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                SecureField(L10n.enterApiKey, text: $deepLKeyInput)
-                                    .textFieldStyle(.roundedBorder)
-                                Button(L10n.confirm) {
-                                    guard !deepLKeyInput.isEmpty else { return }
-                                    try? settings.saveDeepLKey(deepLKeyInput)
-                                    deepLKeyInput = ""
-                                    AppOrchestrator.shared.updateTranslationProvider()
-                                }
-                                .controlSize(.small)
-                                .disabled(deepLKeyInput.isEmpty)
-                            }
-                            Button(L10n.engineGuide) {
-                                if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
-                                    NSWorkspace.shared.open(url)
-                                }
-                            }
-                            .font(.caption)
-                            .buttonStyle(.plain)
-                            .foregroundStyle(.secondary)
-                        }
-                    }
+                    )
                 }
 
-                // Google Cloud 선택 시 API 키 입력 인라인 표시
+                // Google Cloud API 키
                 if settings.translationProviderName == "Google Cloud" {
-                    if settings.hasGoogleKey {
-                        HStack {
-                            Label(L10n.apiKeySaved, systemImage: "checkmark.circle.fill")
-                                .foregroundStyle(.green)
-                                .font(.callout)
-                            Spacer()
-                            Button(L10n.clear) {
-                                settings.deleteGoogleKey()
-                                googleKeyInput = ""
-                                settings.translationProviderName = "Apple Translation"
-                                AppOrchestrator.shared.updateTranslationProvider()
-                            }
-                            .controlSize(.small)
+                    APIKeySection(
+                        hasKey: settings.hasGoogleKey,
+                        savedLabel: nil,
+                        onSave: { key in
+                            try? settings.saveGoogleKey(key)
+                            AppOrchestrator.shared.updateTranslationProvider()
+                        },
+                        onDelete: {
+                            settings.deleteGoogleKey()
+                            settings.translationProviderName = "Apple Translation"
+                            AppOrchestrator.shared.updateTranslationProvider()
                         }
-                    } else {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                SecureField(L10n.enterApiKey, text: $googleKeyInput)
-                                    .textFieldStyle(.roundedBorder)
-                                Button(L10n.confirm) {
-                                    guard !googleKeyInput.isEmpty else { return }
-                                    try? settings.saveGoogleKey(googleKeyInput)
-                                    googleKeyInput = ""
-                                    AppOrchestrator.shared.updateTranslationProvider()
-                                }
-                                .controlSize(.small)
-                                .disabled(googleKeyInput.isEmpty)
-                            }
-                            Button(L10n.engineGuide) {
-                                if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
-                                    NSWorkspace.shared.open(url)
-                                }
-                            }
-                            .font(.caption)
-                            .buttonStyle(.plain)
-                            .foregroundStyle(.secondary)
-                        }
-                    }
+                    )
                 }
 
-                // Microsoft Azure 선택 시 API 키 + 리전 입력 인라인 표시
+                // Microsoft Azure API 키 + 리전
                 if settings.translationProviderName == "Microsoft Azure" {
-                    if settings.hasAzureKey {
-                        HStack {
-                            Label(
-                                settings.azureRegion.map { "\(L10n.apiKeySaved) (\($0))" } ?? L10n.apiKeySaved,
-                                systemImage: "checkmark.circle.fill"
-                            )
-                            .foregroundStyle(.green)
-                            .font(.callout)
-                            Spacer()
-                            Button(L10n.clear) {
-                                settings.deleteAzureKey()
-                                settings.azureRegion = nil
-                                azureKeyInput = ""
-                                azureRegionInput = ""
-                                settings.translationProviderName = "Apple Translation"
-                                AppOrchestrator.shared.updateTranslationProvider()
-                            }
-                            .controlSize(.small)
-                        }
-                    } else {
-                        VStack(alignment: .leading, spacing: 4) {
-                            HStack {
-                                SecureField(L10n.enterApiKey, text: $azureKeyInput)
-                                    .textFieldStyle(.roundedBorder)
-                            }
-                            HStack {
-                                TextField(L10n.regionPlaceholder, text: $azureRegionInput)
-                                    .textFieldStyle(.roundedBorder)
-                                Button(L10n.confirm) {
-                                    guard !azureKeyInput.isEmpty else { return }
-                                    try? settings.saveAzureKey(azureKeyInput)
-                                    let region = azureRegionInput.trimmingCharacters(in: .whitespaces)
-                                    settings.azureRegion = region.isEmpty ? nil : region
-                                    azureKeyInput = ""
-                                    azureRegionInput = ""
-                                    AppOrchestrator.shared.updateTranslationProvider()
-                                }
-                                .controlSize(.small)
-                                .disabled(azureKeyInput.isEmpty)
-                            }
-                            Button(L10n.engineGuide) {
-                                if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
-                                    NSWorkspace.shared.open(url)
-                                }
-                            }
-                            .font(.caption)
-                            .buttonStyle(.plain)
-                            .foregroundStyle(.secondary)
-                        }
-                    }
+                    APIKeySection(
+                        hasKey: settings.hasAzureKey,
+                        savedLabel: settings.azureRegion.map { "\(L10n.apiKeySaved) (\($0))" },
+                        onSave: { key in
+                            try? settings.saveAzureKey(key)
+                            let region = azureRegionInput.trimmingCharacters(in: .whitespaces)
+                            settings.azureRegion = region.isEmpty ? nil : region
+                            azureRegionInput = ""
+                            AppOrchestrator.shared.updateTranslationProvider()
+                        },
+                        onDelete: {
+                            settings.deleteAzureKey()
+                            settings.azureRegion = nil
+                            azureRegionInput = ""
+                            settings.translationProviderName = "Apple Translation"
+                            AppOrchestrator.shared.updateTranslationProvider()
+                        },
+                        regionInput: $azureRegionInput
+                    )
                 }
             }
             .animation(.easeInOut(duration: 0.2), value: settings.translationProviderName)
