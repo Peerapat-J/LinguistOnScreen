@@ -136,7 +136,7 @@ struct SettingsView: View {
                                 .font(.callout)
                                 .foregroundStyle(.secondary)
                             if let start = downloadStartTime {
-                                Text(elapsedText(from: start))
+                                Text(DateFormatting.elapsedText(from: start))
                                     .font(.caption)
                                     .foregroundStyle(.tertiary)
                                     .monospacedDigit()
@@ -667,12 +667,6 @@ struct SettingsView: View {
         return String(format: "%.1fMB", mb)
     }
 
-    private func elapsedText(from start: Date) -> String {
-        let seconds = Int(Date().timeIntervalSince(start))
-        let m = seconds / 60
-        let s = seconds % 60
-        return String(format: "%d:%02d", m, s)
-    }
 
     private func engineDescription(for name: String) -> String {
         switch name {
