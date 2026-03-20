@@ -161,7 +161,7 @@ nonisolated enum L10n {
     }
 
     static var matchPopupWidth: String { s("Fit Popup to Selection", ko: "팝업 너비 맞춤") }
-    static var matchPopupWidthDesc: String { s("When enabled, popup width matches the captured area. Otherwise, adjusts based on text length.", ko: "활성화 시 캡처 영역 너비에 맞추고, 비활성화 시 글자 수에 따라 자동 조절합니다.") }
+    static var matchPopupWidthDesc: String { s("Matches popup width to captured area when enabled.", ko: "활성화 시 캡처 영역에 팝업 너비를 맞춥니다.") }
     static var matchPopupWidthHelp: String { s("Match the translation popup width to the captured selection area.", ko: "번역 팝업의 너비를 캡처한 선택 영역에 맞춥니다.") }
 
     static var advancedSection: String { s("Advanced", ko: "고급") }
