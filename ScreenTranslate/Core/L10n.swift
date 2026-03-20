@@ -43,6 +43,9 @@ nonisolated enum L10n {
     static var quickTranslateHint: String { s("ESC: close  ·  Enter: translate  ·  ⇧Enter: new line  ·  ⌘/: swap", ko: "ESC: 닫기  ·  Enter: 번역  ·  ⇧Enter: 줄바꿈  ·  ⌘/: 언어 전환") }
     static var sourceLanguageSelect: String { s("Source language", ko: "소스 언어 선택") }
     static var targetLanguageSelect: String { s("Target language", ko: "번역 대상 언어 선택") }
+    static var doubleCopyShortcut: String { s("⌘C+C", ko: "⌘C+C") }
+    static var doubleCopyHelp: String { s("Press ⌘C twice quickly to translate copied text", ko: "⌘C를 빠르게 두 번 눌러 복사된 텍스트를 번역합니다") }
+    static var noClipboardText: String { s("No text in clipboard. Please copy text first.", ko: "클립보드에 텍스트가 없습니다. 먼저 텍스트를 복사해주세요.") }
 
     // MARK: - Settings
 

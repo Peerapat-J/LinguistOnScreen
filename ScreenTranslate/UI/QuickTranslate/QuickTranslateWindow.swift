@@ -131,9 +131,9 @@ final class QuickTranslateWindow: NSPanel {
                 return event
             }
 
-            // Cmd+Shift+C → 결과 복사
+            // Cmd+Shift+C → 결과 복사 (keyCode 8 = C키, 입력기 무관)
             if hasCmd && hasShift && !hasOption && !hasControl
-                && event.charactersIgnoringModifiers == "c" {
+                && event.keyCode == 8 {
                 self.onCopyResultAction?()
                 return nil
             }
@@ -162,6 +162,7 @@ final class QuickTranslateWindow: NSPanel {
     /// 다른 앱 위로 올라오는 것을 방지한다.
     override func becomeKey() {
         super.becomeKey()
+        NSApp.activate()  // 앱 전환 후 복귀 시 local monitor가 이벤트를 받을 수 있도록
         NSApp.orderBackAuxiliaryWindows(excluding: self)
     }
 
