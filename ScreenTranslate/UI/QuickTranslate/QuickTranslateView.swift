@@ -60,6 +60,11 @@ struct QuickTranslateView: View {
             DispatchQueue.main.async {
                 registerWindowCallbacks()
             }
+            // 앱 첫 실행 시 keyWindow 설정이 늦을 수 있으므로 fallback 재시도.
+            // 1차 성공 시 동일 콜백을 덮어쓸 뿐 부작용 없음.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                registerWindowCallbacks()
+            }
         }
         .onDisappear {
             autoCopyTask?.cancel()
@@ -289,7 +294,7 @@ struct QuickTranslateView: View {
         copyFeedbackTask?.cancel()
         didCopyResult = true
         copyFeedbackTask = Task { @MainActor in
-            try? await Task.sleep(for: .seconds(1))
+            try? await Task.sleep(for: .seconds(0.4))
             guard !Task.isCancelled else { return }
             didCopyResult = false
         }
