@@ -157,6 +157,7 @@ final class AppOrchestrator {
 
         // Accessibility 권한 확인
         guard TextGrabber.isAccessibilityTrusted else {
+            TextGrabber.requestAccessibilityPermission()
             PermissionGuard.requestAccessibilityPermission()
             return
         }
@@ -303,9 +304,16 @@ final class AppOrchestrator {
 
     /// 드래그 번역 모드 전환 — 설정에서 변경 시 호출.
     /// 글로벌 모니터는 항상 설치되어 있으므로 KeyboardShortcuts만 전환한다.
+    /// doubleCopy 모드는 NSEvent.addGlobalMonitorForEvents(.keyDown)를 사용하므로
+    /// Accessibility 권한이 필요하다. 권한이 없으면 안내 팝업을 표시한다.
     func updateDragTranslateMode() {
         if AppSettings.shared.dragTranslateMode == "doubleCopy" {
             KeyboardShortcuts.disable(.dragTranslate)
+            // Accessibility 권한 확인 — 글로벌 키보드 모니터에 필요
+            if !TextGrabber.isAccessibilityTrusted {
+                TextGrabber.requestAccessibilityPermission()
+                PermissionGuard.requestAccessibilityPermission()
+            }
         } else {
             KeyboardShortcuts.onKeyUp(for: .dragTranslate) { [weak self] in
                 Task { @MainActor in
@@ -357,8 +365,15 @@ final class AppOrchestrator {
     }
 
     /// Cmd+C+C로 트리거된 클립보드 텍스트 번역.
-    /// Accessibility 권한 불필요 — 클립보드에서 직접 읽는다.
+    /// 글로벌 모니터 콜백에서 호출되므로 이 시점에서 Accessibility 권한은 이미 있지만,
+    /// 방어적으로 한 번 더 확인한다.
     private func startClipboardTranslation() {
+        guard TextGrabber.isAccessibilityTrusted else {
+            TextGrabber.requestAccessibilityPermission()
+            PermissionGuard.requestAccessibilityPermission()
+            return
+        }
+
         cancelCurrentWork()
 
         processingTask = Task { @MainActor in
@@ -532,8 +547,17 @@ final class AppOrchestrator {
         )
         window.title = L10n.settingsMenu.replacingOccurrences(of: "...", with: "")
         window.isReleasedWhenClosed = false
-        window.center()
-        window.contentView = NSHostingView(rootView: SettingsView())
+        let hostingView = NSHostingView(rootView: SettingsView())
+        window.contentView = hostingView
+
+        // 메뉴바 바로 아래, 화면 중앙에 위치
+        if let screen = NSScreen.main {
+            let contentSize = hostingView.fittingSize
+            let x = screen.visibleFrame.midX - contentSize.width / 2
+            let y = screen.visibleFrame.maxY - contentSize.height
+            window.setFrameOrigin(NSPoint(x: x, y: y))
+        }
+
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
         self.settingsWindow = window

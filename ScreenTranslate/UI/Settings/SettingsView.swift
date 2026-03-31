@@ -315,6 +315,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .scrollDisabled(true)
     }
 
     // MARK: - 고급 탭
@@ -567,6 +568,7 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .scrollDisabled(true)
     }
 
     // MARK: - Helpers
