@@ -19,7 +19,6 @@ nonisolated enum L10n {
     static var showAll: String { s("Show All...", ko: "모두 보기...") }
     static var aboutApp: String { s("About ScreenTranslate", ko: "ScreenTranslate 정보") }
     static var settingsMenu: String { s("Settings...", ko: "설정...") }
-    static var checkForUpdates: String { s("Check for Updates...", ko: "업데이트 확인...") }
     static var quit: String { s("Quit", ko: "종료") }
 
     // MARK: - Popup
@@ -87,7 +86,6 @@ nonisolated enum L10n {
     static var quotaExceeded: String { s("API quota exceeded. Please check your plan.", ko: "API 사용량을 초과했습니다. 요금제를 확인해주세요.") }
     static var regionLabel: String { s("Region", ko: "리전") }
     static var regionPlaceholder: String { s("e.g. koreacentral", ko: "예: koreacentral") }
-    static var engineGuide: String { s("Engine setup guide", ko: "엔진 설정 가이드") }
 
     // MARK: - Engine Descriptions
 
@@ -104,12 +102,6 @@ nonisolated enum L10n {
     static var targetLanguageHelp: String { s("Language to translate into", ko: "번역 결과 언어") }
     static var ocrEngineHelp: String { s("Text recognition engine. Apple Vision runs on-device", ko: "텍스트 인식 엔진. Apple Vision은 온디바이스로 동작합니다") }
     static var shortcutHelp: String { s("Global shortcut to start screen translation. Default: Cmd+E", ko: "화면 번역을 시작하는 전역 단축키. 기본값: ⌘E") }
-
-    // MARK: - About Links
-
-    static var aboutWebsite: String { s("Website", ko: "웹사이트") }
-    static var aboutEnginesGuide: String { s("Translation Engines Guide", ko: "번역 엔진 가이드") }
-    static var aboutPrivacyPolicy: String { s("Privacy Policy", ko: "개인정보처리방침") }
 
     // MARK: - Advanced
 

@@ -5,7 +5,7 @@
     <key>com.apple.security.app-sandbox</key>
     <false/>
 
-    <!-- Sparkle 업데이트 체크 + 다운로드를 위한 네트워크 접근 -->
+    <!-- Cloud translation engines and optional font downloads require network access. -->
     <key>com.apple.security.network.client</key>
     <true/>
 </dict>

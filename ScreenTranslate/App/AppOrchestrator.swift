@@ -1,12 +1,9 @@
 import AppKit
-import Combine
 import CoreGraphics
 import KeyboardShortcuts
 import Observation
-import Sparkle
 import SwiftData
 import SwiftUI
-import TelemetryDeck
 
 /// UI 생명주기를 관리하는 싱글턴.
 /// 오버레이/팝업 윈도우 표시/숨김, 권한 확인, 사용자 인터랙션 처리.
@@ -48,24 +45,6 @@ final class AppOrchestrator {
     /// 번역 히스토리 관리자 — @Observable이 lazy를 지원하지 않으므로 추적 제외
     @ObservationIgnored
     lazy var historyManager = TranslationHistoryManager(modelContainer: modelContainer)
-
-    /// Sparkle 자동 업데이트 컨트롤러
-    @ObservationIgnored
-    let updaterController = SPUStandardUpdaterController(
-        startingUpdater: true,
-        updaterDelegate: nil,
-        userDriverDelegate: nil
-    )
-
-    /// Sparkle 업데이트 확인 가능 여부 — MenuBarView/AboutView에서 버튼 비활성화에 사용
-    private(set) var canCheckForUpdates = false
-
-    @ObservationIgnored
-    private var updateCancellable: AnyCancellable?
-
-    func checkForUpdates() {
-        updaterController.checkForUpdates(nil)
-    }
 
     /// 폴링 루프를 실행하는 Task — 새 번역 시작 시 취소한다.
     private var processingTask: Task<Void, any Error>?
@@ -116,11 +95,6 @@ final class AppOrchestrator {
             }
         }
 
-        // Sparkle canCheckForUpdates KVO → @Observable 브리지
-        updateCancellable = updaterController.updater
-            .publisher(for: \.canCheckForUpdates)
-            .receive(on: RunLoop.main)
-            .assign(to: \.canCheckForUpdates, on: self)
     }
 
     func startTranslation() {
@@ -193,8 +167,6 @@ final class AppOrchestrator {
     private func observeAndRecord(
         popup: TranslationPopupWindow,
         rect: CGRect,
-        telemetryEvent: String,
-        telemetryParameters: [String: String] = [:],
         sourceTextFallback: String?
     ) async throws {
         for await state in coordinator.stateStream {
@@ -203,9 +175,6 @@ final class AppOrchestrator {
 
             switch state {
             case .completed(let result):
-                var params = telemetryParameters
-                params["engine"] = coordinator.translationProvider.name
-                TelemetryDeck.signal(telemetryEvent, parameters: params)
                 historyManager.recordSuccess(
                     sourceText: result.sourceText,
                     translatedText: result.translatedText,
@@ -266,8 +235,6 @@ final class AppOrchestrator {
             try await observeAndRecord(
                 popup: popup,
                 rect: cursorRect,
-                telemetryEvent: "dragTranslationCompleted",
-                telemetryParameters: ["trigger": "shortcut"],
                 sourceTextFallback: selectedText
             )
         } catch is CancellationError {
@@ -410,8 +377,6 @@ final class AppOrchestrator {
             try await observeAndRecord(
                 popup: popup,
                 rect: cursorRect,
-                telemetryEvent: "dragTranslationCompleted",
-                telemetryParameters: ["trigger": "doubleCopy"],
                 sourceTextFallback: clipboardText
             )
         } catch is CancellationError {
@@ -441,7 +406,6 @@ final class AppOrchestrator {
             try await observeAndRecord(
                 popup: popup,
                 rect: rect,
-                telemetryEvent: "translationCompleted",
                 sourceTextFallback: nil
             )
         } catch is CancellationError {

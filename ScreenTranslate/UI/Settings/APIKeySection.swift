@@ -36,14 +36,6 @@ struct APIKeySection: View {
                         confirmButton
                     }
                 }
-                Button(L10n.engineGuide) {
-                    if let url = URL(string: "https://screentranslate.filient.ai/engines?utm_source=app&utm_medium=settings&utm_campaign=screentranslate") {
-                        NSWorkspace.shared.open(url)
-                    }
-                }
-                .font(.caption)
-                .buttonStyle(.plain)
-                .foregroundStyle(.secondary)
             }
         }
     }

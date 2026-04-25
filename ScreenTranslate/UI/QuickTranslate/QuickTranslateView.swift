@@ -1,5 +1,4 @@
 import SwiftUI
-import TelemetryDeck
 
 struct QuickTranslateView: View {
     let coordinator: TranslationCoordinator
@@ -236,7 +235,6 @@ struct QuickTranslateView: View {
             for await state in stream {
                 switch state {
                 case .completed(let result):
-                    TelemetryDeck.signal("quickTranslateCompleted", parameters: ["engine": coordinator.translationProvider.name])
                     // 히스토리 기록
                     AppOrchestrator.shared.historyManager.recordSuccess(
                         sourceText: result.sourceText,

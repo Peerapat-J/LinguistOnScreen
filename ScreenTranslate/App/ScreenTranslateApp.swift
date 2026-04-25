@@ -1,6 +1,5 @@
 import SwiftUI
 import KeyboardShortcuts
-import TelemetryDeck
 
 extension KeyboardShortcuts.Name {
     static let translate = Self("translate", default: .init(.e, modifiers: [.command]))
@@ -30,11 +29,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var bridgeWindow: NSWindow?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // TelemetryDeck 초기화
-        let config = TelemetryDeck.Config(appID: "D40DAE14-17FE-4D5E-86B9-294CA7E45B7F")
-        TelemetryDeck.initialize(config: config)
-        TelemetryDeck.signal("appLaunched")
-
         // 키보드 단축키 등록 — NSApplication 초기화 완료 후 안전하게 수행
         AppOrchestrator.shared.setup()
 

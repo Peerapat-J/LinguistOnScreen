@@ -307,11 +307,6 @@ struct SettingsView: View {
                             }
                         }
                     }
-
-                Button(L10n.checkForUpdates) {
-                    AppOrchestrator.shared.checkForUpdates()
-                }
-                .disabled(!AppOrchestrator.shared.canCheckForUpdates)
             }
         }
         .formStyle(.grouped)
